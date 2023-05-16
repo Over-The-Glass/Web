@@ -1,46 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login-style.css') }}">
-    <script src="signup-alert.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <title>Over the glass</title>
-</head>
-
-<body>
-    <div class="navbar_logo">
-        <i class="fa-brands fa-accusoft"></i>
-        <a href="">Over the glass</a>
-        <a href="" class="material-symbols-outlined">menu</a>
-    </div>
-
-    <div class="login-wrapper">
-
-        <form method="post" id="login-form">
-            <input type="email" name="userEmail" id="em" placeholder="이메일">
-            <input type="password" name="userPassword1" id="pw" placeholder="비밀번호">
-            <!-- lable의 for의 값과 양식의 id의 값이 같으면 연결된다. -->
-
-            <button type="button" onclick="login_()">로그인</button>
-            <button type="submit">회원가입</button> | 소셜 계정으로 시작하기
-            <div class="social-login-wrapper">
-                <button type="button" name="kakao"><img src="{{url_for('static', filename='src/img/kakao_logo.jpg')}}" style="width:50px; height:50px;"></button>
-                <button type="button" name="google"><img src="{{url_for('static', filename='src/img/google_logo.jpg')}}" style="width:50px; height:50px;"></button>
-            </div>
-  <!-- <input type="button" value="로그인" onclick="login_()">
-            <input type="button" value="회원가입" onclick="">
-            <input type="button" value="비회원사용" onclick=""> -->
-        </form>
-    </div>
-
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/login-style.css') }}">
+        <script src="signup-alert.js"></script>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <title>Over the glass</title>
+    </head>
     <script>
         function login_() {
             var em = document.querySelector('#em');
             var pw = document.querySelector('#pw');
-
             if (em.value == "" || pw.value == "") {
                 alert("로그인을 할 수 없습니다.");
             } else {
@@ -48,6 +20,24 @@
             }
         }
     </script>
-</body>
-
+    <body>
+        <div class="navbar_logo">
+            <i class="fa-brands fa-accusoft"></i>
+            <a href="">Over the glass</a>
+            <a href="" class="material-symbols-outlined">menu</a>
+        </div>
+        <div class="login-wrapper">
+            <form method="post" id="login-form">
+                <input type="email" name="userEmail" id="em" placeholder="이메일">
+                <input type="password" name="userPassword1" id="pw" placeholder="비밀번호">
+                <!-- lable의 for의 값과 양식의 id의 값이 같으면 연결된다. -->
+                <button type="button" onclick="login_()">로그인</button>
+                <button type="submit">회원가입</button> | 소셜 계정으로 시작하기
+                <div class="social-login-wrapper">
+                    <button type="button" name="kakao"><img src="{{url_for('static', filename='src/img/kakao_logo.jpg')}}" style="width:50px; height:50px;"></button>
+                    <button type="button" name="google"><img src="{{url_for('static', filename='src/img/google_logo.jpg')}}" style="width:50px; height:50px;"></button>
+                </div>
+            </form>
+        </div>
+    </body>
 </html>

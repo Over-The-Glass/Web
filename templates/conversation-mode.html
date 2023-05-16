@@ -1,34 +1,40 @@
 <!doctype html>
 <html lang="en">
-<head>
+  <head>
     <title>Over the Glass</title>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style3.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-</head>
-
-<body>
+    <script>
+      function goToMenu(){
+        location.href = "{{ url_for('menu') }}";
+      }
+    </script>
+  </head>
+  <body>
     <div class="navbar_logo">
         <i class="fa-brands fa-accusoft"></i>
         <a href="">Over the glass</a>
         <a href="" class="material-symbols-outlined">menu</a>
     </div>
-        <h1>실시간 대화방</h1>
-        <img id="img" src="{{ url_for('video_feed') }}" >
-        <script>
-            var img = document.querySelector("#img");
-
-            if (navigator.mediaDevices.getUserMedia) {
-              navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function (stream) {
-                  img.srcObject = stream;
-                })
-                .catch(function (err0r) {
-                  console.log("Something went wrong!");
-                });
-          }
-        </script>
-</body>
+    <h1>실시간 대화방</h1>
+    <script>
+      var img = document.querySelector("#img");
+      if (navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(function (stream) {
+            img.srcObject = stream;
+          })
+          .catch(function (err0r) {
+            console.log("Something went wrong!");
+          });
+      }
+    </script>
+    <img id="img" src="{{ url_for('video_feed') }}" >
+    <div>
+      <button id="close" onclick="goToMenu()">대화방 나가기</button>
+    </div>
+  </body>
 </html>

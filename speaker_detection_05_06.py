@@ -46,13 +46,13 @@ class LipMovement:
 
 # 글씨 크기, 색상 설정하여 자막 출력하는 함수
 def draw_text(img, text,
-          font=cv2.FONT_HERSHEY_SIMPLEX,
-          pos=(0, 0),
-          font_scale=1,
-          font_thickness=2,
-          text_color=(255, 255, 255),
-          bg_color=(0, 0, 0)
-          ):
+        font=cv2.FONT_HERSHEY_SIMPLEX,
+        pos=(0, 0),
+        font_scale=1,
+        font_thickness=2,
+        text_color=(255, 255, 255),
+        bg_color=(0, 0, 0)
+        ):
     x, y = pos
     text_size, _ = cv2.getTextSize(text, font, font_scale, font_thickness)
     text_w, text_h = text_size
