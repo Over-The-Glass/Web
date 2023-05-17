@@ -1,3 +1,6 @@
+import sys
+sys.path.append('/dlib')
+
 import time
 import dlib
 import cv2
