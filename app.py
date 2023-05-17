@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/dlib')
+sys.path.append('/home/ec2-user/dlib')
 
 import time
 import dlib
