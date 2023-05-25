@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <title>Over the Glass</title>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -11,34 +12,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js"></script>
     <script src="{{ url_for('static', filename='libraries/p5.speech.js') }}"></script>
     <script src="{{ url_for('static', filename='sketch.js') }}"></script>
-    <script>
-      function goToMenu(){
-        location.href = "{{ url_for('menu') }}";
-      }
-    </script>
-  </head>
-  <body>
+
+</head>
+
+<body>
     <div class="navbar_logo">
         <i class="fa-brands fa-accusoft"></i>
         <a href="">Over the glass</a>
         <a href="" class="material-symbols-outlined">menu</a>
     </div>
-    <h1>실시간 대화방</h1>
+    <img id="img" src="{{ url_for('video_feed') }}">z
     <script>
-      var img = document.querySelector("#img");
-      if (navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-          .then(function (stream) {
-            img.srcObject = stream;
-          })
-          .catch(function (err0r) {
-            console.log("Something went wrong!");
-          });
-      }
+        var img = document.querySelector("#img");
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({
+                    video: true
+                })
+                .then(function(stream) {
+                    img.srcObject = stream;
+                })
+                .catch(function(err0r) {
+                    console.log("Something went wrong!");
+                });
+        }
     </script>
-    <img id="img" src="{{ url_for('video_feed') }}" >
-    <div>
-      <button id="close" onclick="goToMenu()">대화방 나가기</button>
-    </div>
-  </body>
+</body>
+
 </html>
