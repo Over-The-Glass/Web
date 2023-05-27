@@ -32,13 +32,13 @@ class LipMovement:
         return round(self.width_average, 3), round(self.height_average, 3)
 
 def draw_text(img, text,
-          font=cv2.FONT_HERSHEY_SIMPLEX,
-          pos=(0, 0),
-          font_scale=1,
-          font_thickness=2,
-          text_color=(255, 255, 255),
-          bg_color=(0, 0, 0)
-          ):
+        font=cv2.FONT_HERSHEY_SIMPLEX,
+        pos=(0, 0),
+        font_scale=1,
+        font_thickness=2,
+        text_color=(255, 255, 255),
+        bg_color=(0, 0, 0)
+    ):
     x, y = pos
     text_size, _ = cv2.getTextSize(text, font, font_scale, font_thickness)
     text_w, text_h = text_size
@@ -152,13 +152,11 @@ def menu():
 def speaker_info():
     # 발화자 정보와 한국어 자막을 가져와서 클라이언트로 전송
     # 예: speaker = "John Doe", subtitle = "안녕하세요"
-
     return jsonify({'speaker': name})
 
 @app.route('/video_feed')
 def video_feed():
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
 
 if __name__ == '__main__':
     app.run(debug=True)
