@@ -8,18 +8,18 @@
         <script src="signup-alert.js"></script>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
         <title>Over the glass</title>
-    </head>
-    <script>
-        function login_() {
-            var em = document.querySelector('#em');
-            var pw = document.querySelector('#pw');
-            if (em.value == "" || pw.value == "") {
-                alert("로그인을 할 수 없습니다.");
-            } else {
-                location.href = "{{ url_for('menu')}}";
+        <script>
+            function login_() {
+                var em = document.querySelector('#em');
+                var pw = document.querySelector('#pw');
+                if (em.value == "" || pw.value == "") {
+                    alert("로그인을 할 수 없습니다.");
+                } else {
+                    location.href = "{{ url_for('menu')}}";
+                }
             }
-        }
-    </script>
+        </script>
+    </head>
     <body>
         <div class="navbar_logo">
             <i class="fa-brands fa-accusoft"></i>

@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-
 <head>
     <title>Over the Glass</title>
     <meta charset="UTF-8" />
@@ -12,9 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js"></script>
     <script src="{{ url_for('static', filename='libraries/p5.speech.js') }}"></script>
     <script src="{{ url_for('static', filename='sketch.js') }}"></script>
-
 </head>
-
 <body>
     <div class="navbar_logo">
         <i class="fa-brands fa-accusoft"></i>
@@ -36,6 +33,14 @@
                 });
         }
     </script>
+    <div>
+        <button id="close" onclick="goToMenu()">대화방 나가기</button>
+    </div>
+    <script>
+        function goToMenu(){
+            location.href = "{{ url_for('menu') }}";
+        }
+    </script>    
 </body>
 
 </html>
