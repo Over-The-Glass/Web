@@ -2,7 +2,9 @@
  
 name: Sync this repository to GitLab repository
  
-on: 
+on:
+  push:
+  delete:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
  
