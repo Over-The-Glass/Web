@@ -1,6 +1,6 @@
 # This is a workflow that syncs everthing on this repository to another repository
  
-name: Sync this repository to another repository
+name: Sync this repository to GitLab repository
  
 on: 
   # Allows you to run this workflow manually from the Actions tab
