@@ -18,7 +18,7 @@
         <a href="">Over the glass</a>
         <a href="" class="material-symbols-outlined">menu</a>
     </div>
-    <img id="img" src="{{ url_for('video_feed') }}">z
+    <img id="img" src="{{ url_for('video_feed') }}">
     <script>
         var img = document.querySelector("#img");
         if (navigator.mediaDevices.getUserMedia) {
@@ -40,7 +40,7 @@
         function goToMenu(){
             location.href = "{{ url_for('menu') }}";
         }
-    </script>    
+    </script>  
 </body>
 
 </html>
