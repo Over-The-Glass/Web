@@ -69,6 +69,7 @@ movements = [LipMovement(known_names[i]) for i in range(len(known_names))]
 check_frame = True
 latest_speaker_position = ()
 difference = [0 for i in range(len(known_names))]
+name = "?"
 
 video_capture = cv2.VideoCapture(0)
 
