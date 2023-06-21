@@ -3,8 +3,7 @@ import cv2
 import numpy as np
 import os
 from collections import deque
-from flask import Flask, render_template, Response
-from flask import jsonify
+from flask import Flask, render_template, Response, jsonify, request
 
 app = Flask(__name__)
 
@@ -12,11 +11,13 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
 
+client_speech = ""
+
 class LipMovement:
     def __init__(self, name):
         self.name = name
-        self.width_diffs = deque(maxlen=3)
-        self.height_diffs = deque(maxlen=3)
+        self.width_diffs = deque(maxlen=10)
+        self.height_diffs = deque(maxlen=10)
         self.prev_height = 0
         self.prev_width = 0
 
@@ -31,14 +32,8 @@ class LipMovement:
         self.prev_width = width
         return round(self.width_average, 3), round(self.height_average, 3)
 
-def draw_text(img, text,
-        font=cv2.FONT_HERSHEY_SIMPLEX,
-        pos=(0, 0),
-        font_scale=1,
-        font_thickness=2,
-        text_color=(255, 255, 255),
-        bg_color=(0, 0, 0)
-    ):
+def draw_text(img, text, font=cv2.FONT_HERSHEY_SIMPLEX, pos=(0, 0), font_scale=1, font_thickness=2,
+              text_color=(255, 255, 255), bg_color=(0, 0, 0)):
     x, y = pos
     text_size, _ = cv2.getTextSize(text, font, font_scale, font_thickness)
     text_w, text_h = text_size
@@ -68,74 +63,79 @@ movements = [LipMovement(known_names[i]) for i in range(len(known_names))]
 
 check_frame = True
 latest_speaker_position = ()
-difference = [0 for i in range(len(known_names))]
-name = "?"
+difference = [0 for _ in range(len(known_names))]
 
 video_capture = cv2.VideoCapture(0)
 
-def gen():
+def process_frame(frame):
+    global latest_speaker_position
     global name
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = detector(gray)
+    has_speaker = False
+    landmarks = None
+
+    for face in faces:
+        landmarks = predictor(gray, face)
+
+        face_encoding = np.array(facerec.compute_face_descriptor(frame, landmarks))
+
+        face_distances = []
+        for known_face in known_faces:
+            face_distances.append(np.linalg.norm(known_face - face_encoding))
+
+        min_distance = min(face_distances)
+        min_distance_index = np.argmin(face_distances)
+        name = known_names[min_distance_index]
+        match_rate = 1 / (1 + min_distance)
+
+        if match_rate > 0.5:
+            landmarks_array = np.array([[p.x, p.y] for p in landmarks.parts()])
+            lip_height = np.linalg.norm(landmarks_array[62] - landmarks_array[66])
+            lip_width = np.linalg.norm(landmarks_array[48] - landmarks_array[54])
+
+            eye_width = np.linalg.norm(landmarks_array[37] - landmarks_array[44])
+
+            d = eye_width * 0.06
+
+            width_average, height_average = movements[min_distance_index].check_movement(
+                lip_width / eye_width * 100,
+                lip_height / eye_width * 100)
+            text = f"w: {width_average}, h: {height_average}"
+
+            if height_average > 3 or width_average > 3:
+                cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 255, 0), 1)
+                difference[min_distance_index] = height_average + width_average
+                has_speaker = True
+
+            if np.argmax(difference) == min_distance_index:
+                latest_speaker_position = (face.left(), face.bottom() + 60)
+
+            if latest_speaker_position:
+                draw_text(frame, client_speech, pos=latest_speaker_position)
+
+            cv2.putText(frame, f"{name} ({match_rate:.2%})", (face.left(), face.bottom() + 20),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+
+    if not has_speaker and client_speech:
+        draw_text(frame, client_speech, pos=(frame.shape[1] // 2, frame.shape[0] - 30))
+
+    ret, buffer = cv2.imencode('.jpg', frame)
+    frame = buffer.tobytes()
+    return frame
+
+def gen():
+    global client_speech
     while True:
         ret, frame = video_capture.read()
         if not ret:
             break
 
         if check_frame:
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            processed_frame = process_frame(frame)
 
-            faces = detector(gray)
-
-            for face in faces:
-                name = "?"
-                landmarks = predictor(gray, face)
-
-                face_encoding = np.array(facerec.compute_face_descriptor(frame, landmarks))
-
-                face_distances = []
-                for known_face in known_faces:
-                    face_distances.append(np.linalg.norm(known_face - face_encoding))
-
-                min_distance = min(face_distances)
-                min_distance_index = np.argmin(face_distances)
-                name = known_names[min_distance_index]
-                match_rate = 1 / (1 + min_distance)
-
-                if match_rate > 0.5:
-                    landmarks_array = np.array([[p.x, p.y] for p in landmarks.parts()])
-                    lip_height = np.linalg.norm(landmarks_array[62] - landmarks_array[66])
-                    lip_width = np.linalg.norm(landmarks_array[48] - landmarks_array[54])
-
-                    eye_width = np.linalg.norm(landmarks_array[37] - landmarks_array[44])
-
-                    d = eye_width * 0.06
-
-                    width_average, height_average = movements[min_distance_index].check_movement(
-                        lip_width / eye_width * 100,
-                        lip_height / eye_width * 100)
-                    text = "w: " + str(width_average) + ", h: " + str(height_average)
-
-                    if (height_average > 2 or width_average > 2):
-                        cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 255, 0), 1)
-                        difference[min_distance_index] = height_average + width_average
-
-                    if np.argmax(difference) == min_distance_index:
-                        latest_speaker_position = (face.left(), face.bottom() + 60)
-
-                    cv2.putText(frame, text, (face.left(), face.bottom() + 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                                (0, 255, 0), 1)
-
-                cv2.putText(frame, f"{name} ({match_rate:.2%})", (face.left(), face.bottom() + 20),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-        else:
-            fcheck_frame = not check_frame
-
-        if latest_speaker_position:
-            draw_text(frame, "subtitle location", pos=latest_speaker_position)
-
-        ret, jpeg = cv2.imencode('.jpg', frame)
-        frame = jpeg.tobytes()
-        yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + processed_frame + b'\r\n')
 
 @app.route('/')
 def login():
@@ -151,13 +151,17 @@ def menu():
 
 @app.route('/speaker_info')
 def speaker_info():
-    # 발화자 정보와 한국어 자막을 가져와서 클라이언트로 전송
-    # 예: speaker = "John Doe", subtitle = "안녕하세요"
     return jsonify({'speaker': name})
 
 @app.route('/video_feed')
 def video_feed():
     return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/process_speech', methods=['POST'])
+def process_speech():
+    global client_speech
+    client_speech = request.json['speech']
+    return 'OK'
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(threaded=True)
