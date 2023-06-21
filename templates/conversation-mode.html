@@ -12,6 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js"></script>
     <script src="{{ url_for('static', filename='libraries/p5.speech.js') }}"></script>
     <script src="{{ url_for('static', filename='sketch.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 
 <body>
@@ -21,6 +23,7 @@
         <a href="" class="material-symbols-outlined">menu</a>
     </div>
     <img id="img" src="{{ url_for('video_feed') }}">
+    <div id="subtitle"></div>
     <script>
         var img = document.querySelector("#img");
         if (navigator.mediaDevices.getUserMedia) {
@@ -33,14 +36,6 @@
                 .catch(function(err0r) {
                     console.log("Something went wrong!");
                 });
-        }
-    </script>
-    <div>
-        <button id="close" onclick="goToMenu()">대화방 종료</button>
-    </div>
-    <script>
-        function goToMenu() {
-            location.href = "{{ url_for('menu') }}";
         }
     </script>
 </body>
