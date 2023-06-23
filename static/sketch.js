@@ -7,6 +7,16 @@ let said = ''; // 음성 결과를 저장하는 변수
 function gotSpeech() {
     if (speechRec.resultValue) {
         said = speechRec.resultString;
+        fetch('/speaker_info')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Speaker:', data.speaker);
+            })
+            .catch(error => {
+                console.log('Error:', error);
+            });
+        console.log(said);
+        Unity.call(data.speaker, said);
     }
 }
 
