@@ -9,11 +9,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style3.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js"></script>
     <script src="{{ url_for('static', filename='libraries/p5.speech.js') }}"></script>
     <script src="{{ url_for('static', filename='sketch.js') }}"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 </head>
 
 <body>
@@ -22,20 +21,16 @@
         <a href="">Over the glass</a>
         <a href="" class="material-symbols-outlined">menu</a>
     </div>
-    <img id="img" src="{{ url_for('video_feed') }}">
-    <div id="subtitle"></div>
+    <div id="output">
+        <p id="outputText">who said what</p>
+        <!-- 수정된 부분 -->
+    </div>
+    <div>
+        <button id="close" onclick="goToMenu()">대화방 종료</button>
+    </div>
     <script>
-        var img = document.querySelector("#img");
-        if (navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({
-                    video: true
-                })
-                .then(function(stream) {
-                    img.srcObject = stream;
-                })
-                .catch(function(err0r) {
-                    console.log("Something went wrong!");
-                });
+        function goToMenu() {
+            location.href = "{{ url_for('menu') }}";
         }
     </script>
 </body>
