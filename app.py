@@ -4,6 +4,7 @@ import numpy as np
 import os
 from collections import deque
 from flask import Flask, render_template, Response, jsonify, request
+import asyncio
 
 app = Flask(__name__)
 
@@ -12,12 +13,12 @@ predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
 
 client_speech = ""
-
+is_processing = False
 class LipMovement:
     def __init__(self, name):
         self.name = name
-        self.width_diffs = deque(maxlen=10)
-        self.height_diffs = deque(maxlen=10)
+        self.width_diffs = deque(maxlen=3)
+        self.height_diffs = deque(maxlen=3)
         self.prev_height = 0
         self.prev_width = 0
 
@@ -31,15 +32,6 @@ class LipMovement:
         self.prev_height = height
         self.prev_width = width
         return round(self.width_average, 3), round(self.height_average, 3)
-
-def draw_text(img, text, font=cv2.FONT_HERSHEY_SIMPLEX, pos=(0, 0), font_scale=1, font_thickness=2,
-              text_color=(255, 255, 255), bg_color=(0, 0, 0)):
-    x, y = pos
-    text_size, _ = cv2.getTextSize(text, font, font_scale, font_thickness)
-    text_w, text_h = text_size
-    cv2.rectangle(img, pos, (x + text_w, y + text_h), bg_color, -1)
-    cv2.putText(img, text, (x, y + text_h + font_scale - 1), font, font_scale, text_color, font_thickness)
-    return
 
 known_faces = []
 known_names = []
@@ -64,16 +56,28 @@ movements = [LipMovement(known_names[i]) for i in range(len(known_names))]
 check_frame = True
 latest_speaker_position = ()
 difference = [0 for _ in range(len(known_names))]
+name = "?"
 
-video_capture = cv2.VideoCapture(0)
-
-def process_frame(frame):
+def process_frame(data):
+    global is_processing 
     global latest_speaker_position
     global name
+
+    is_processing=True
+
+    image = cv2.imdecode(data, cv2.IMREAD_COLOR)
+
+    frame = cv2.flip(image, 0)
+
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
     faces = detector(gray)
     has_speaker = False
     landmarks = None
+
+    if not faces:  # 얼굴이 감지되지 않을 경우
+        name = "Unknown"  # Unknown으로 표시
+
 
     for face in faces:
         landmarks = predictor(gray, face)
@@ -101,41 +105,35 @@ def process_frame(frame):
             width_average, height_average = movements[min_distance_index].check_movement(
                 lip_width / eye_width * 100,
                 lip_height / eye_width * 100)
-            text = f"w: {width_average}, h: {height_average}"
+            # text = f"w: {width_average}, h: {height_average}"
 
             if height_average > 3 or width_average > 3:
-                cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 255, 0), 1)
+                # cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 255, 0), 1)
                 difference[min_distance_index] = height_average + width_average
                 has_speaker = True
 
             if np.argmax(difference) == min_distance_index:
                 latest_speaker_position = (face.left(), face.bottom() + 60)
 
-            if latest_speaker_position:
-                draw_text(frame, client_speech, pos=latest_speaker_position)
+            # if latest_speaker_position:
+            #     # draw_text(frame, client_speech, pos=latest_speaker_position)
 
-            cv2.putText(frame, f"{name} ({match_rate:.2%})", (face.left(), face.bottom() + 20),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+            # cv2.putText(frame, f"{name} ({match_rate:.2%})", (face.left(), face.bottom() + 20),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+        
+        else:  # 매치율이 0.5보다 작을 경우
+            name = "Unknown"  # Unknown으로 표시
+            # cv2.putText(frame, f"{name}", (face.left(), face.bottom() + 20),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
     if not has_speaker and client_speech:
-        draw_text(frame, client_speech, pos=(frame.shape[1] // 2, frame.shape[0] - 30))
+        if not faces:  # 얼굴이 감지되지 않을 경우
+            name = "Unknown"
+        # draw_text(frame, client_speech, pos=(frame.shape[1] // 2, frame.shape[0] - 30))
 
-    ret, buffer = cv2.imencode('.jpg', frame)
-    frame = buffer.tobytes()
-    return frame
+    is_processing =False
 
-def gen():
-    global client_speech
-    while True:
-        ret, frame = video_capture.read()
-        if not ret:
-            break
-
-        if check_frame:
-            processed_frame = process_frame(frame)
-
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + processed_frame + b'\r\n')
+    return
 
 @app.route('/')
 def login():
@@ -153,15 +151,37 @@ def menu():
 def speaker_info():
     return jsonify({'speaker': name})
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(gen(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
 @app.route('/process_speech', methods=['POST'])
 def process_speech():
     global client_speech
     client_speech = request.json['speech']
     return 'OK'
+
+@app.route('/camera', methods=['POST'])
+def camera():
+    if request.method == 'POST':
+        global is_processing 
+
+        # 프레임 데이터를 처리하고 처리된 프레임을 JPEG 형식으로 얻습니다.
+        if is_processing == True :
+            print("already processing")
+        else :
+            print("start processing")
+            
+            # 요청에서 카메라 프레임 데이터를 가져옵니다.
+            frame_data = np.frombuffer(request.data, dtype=np.uint8)
+
+        # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
+            print('Received camera frame:', len(frame_data), 'bytes')
+            process_frame(frame_data)
+            print(name)
+            
+
+        # 응답으로는 프레임 데이터가 아닌 성공 상태를 반환합니다.
+        return 'Success'
+    else:
+        # 다른 메서드의 경우 오류 응답을 반환합니다.
+        return '허용되지 않는 메서드입니다.', 405
 
 if __name__ == '__main__':
     app.run(threaded=True)
