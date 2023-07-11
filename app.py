@@ -13,12 +13,12 @@ predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
 
 client_speech = ""
-is_processing = False
+
 class LipMovement:
     def __init__(self, name):
         self.name = name
-        self.width_diffs = deque(maxlen=3)
-        self.height_diffs = deque(maxlen=3)
+        self.width_diffs = deque(maxlen=10)
+        self.height_diffs = deque(maxlen=10)
         self.prev_height = 0
         self.prev_width = 0
 
@@ -59,11 +59,8 @@ difference = [0 for _ in range(len(known_names))]
 name = "?"
 
 def process_frame(data):
-    global is_processing 
     global latest_speaker_position
     global name
-
-    is_processing=True
 
     image = cv2.imdecode(data, cv2.IMREAD_COLOR)
 
@@ -131,8 +128,6 @@ def process_frame(data):
             name = "Unknown"
         # draw_text(frame, client_speech, pos=(frame.shape[1] // 2, frame.shape[0] - 30))
 
-    is_processing =False
-
     return
 
 @app.route('/')
@@ -160,22 +155,15 @@ def process_speech():
 @app.route('/camera', methods=['POST'])
 def camera():
     if request.method == 'POST':
-        global is_processing 
-
-        # 프레임 데이터를 처리하고 처리된 프레임을 JPEG 형식으로 얻습니다.
-        if is_processing == True :
-            print("already processing")
-        else :
-            print("start processing")
-            
-            # 요청에서 카메라 프레임 데이터를 가져옵니다.
-            frame_data = np.frombuffer(request.data, dtype=np.uint8)
+        # 요청에서 카메라 프레임 데이터를 가져옵니다.
+        frame_data = np.frombuffer(request.data, dtype=np.uint8)
 
         # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
-            print('Received camera frame:', len(frame_data), 'bytes')
-            process_frame(frame_data)
-            print(name)
-            
+        print('Received camera frame:', len(frame_data), 'bytes')
+
+        # 프레임 데이터를 처리하고 처리된 프레임을 JPEG 형식으로 얻습니다.
+        process_frame(frame_data)
+        print(name)
 
         # 응답으로는 프레임 데이터가 아닌 성공 상태를 반환합니다.
         return 'Success'

@@ -1,9 +1,17 @@
 let speechRec = new p5.SpeechRec('ko-kr', gotSpeech);
-
+let outputText = "";
 let continuous = true;
 let interimResults = false;
 let said = ''; // 음성 결과를 저장하는 변수
 let speakerName = '';
+
+function setup() {
+    noCanvas();
+    outputTextElement = document.getElementById('outputText');
+    speechRec.onEnd = restart;
+    speechRec.start(continuous, interimResults);
+    setInterval(updateCaption, 100); // 일정 시간마다 자막 업데이트 호출
+}
 
 function gotSpeech() {
     if (speechRec.resultValue) {
@@ -16,16 +24,10 @@ function gotSpeech() {
             .catch(error => {
                 console.log('Error:', error);
             });
-        console.log("said: " + said + " ,speaker: " + speakerName);
+        // console.log("said: " + said + " ,speaker: " + speakerName);
+        outputTextElement.innerHTML = speakerName + "," + said;
         Unity.call(speakerName + "," + said);
     }
-}
-
-function setup() {
-    noCanvas();
-    speechRec.onEnd = restart;
-    speechRec.start(continuous, interimResults);
-    setInterval(updateCaption, 100); // 일정 시간마다 자막 업데이트 호출
 }
 
 function updateCaption() {
