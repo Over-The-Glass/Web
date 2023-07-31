@@ -123,6 +123,11 @@ def process_frame(data):
 def login():
     return render_template('login.html')
 
+@app.route('/join', methods=['GET'])
+def join():
+    return render_template('join.html')
+
+
 @app.route('/conversation-mode')
 def conversation_mode():
     return render_template('conversation-mode.html')
