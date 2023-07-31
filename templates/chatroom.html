@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Over The Glass - Chat Room</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />        
+</head>
+<body>
+    <div class="navbar_logo">
+        <i class="fa-brands fa-accusoft"></i>
+        <a href="">Over the glass</a>
+        <a href="" class="material-symbols-outlined">menu</a>
+    </div>
+    <div class="join-wrapper">
+        <form id="join-form">
+            <input type="text" id="room_id" placeholder="대화방 코드(네 자리 숫자)" required>
+            <button type="submit">대화방 참여</button>
+        </form>
+    </div>
+    <script>
+        const socket = io();
+
+        const joinForm = document.getElementById('join-form');
+        const usernameInput = document.getElementById('username');
+        const roomInput = document.getElementById('room_id');
+        const messageContainer = document.getElementById('message-container');
+
+        joinForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = usernameInput.value;
+            const room_id = roomInput.value;
+
+            socket.emit('join', { username, room_id });
+        });
+
+        socket.on('update_users', (data) => {
+            const { room_id, users } = data;
+            messageContainer.innerHTML = `Room ID: ${room_id} <br> Users: ${users.join(', ')}`;
+        });
+    </script>
+</body>
+</html>

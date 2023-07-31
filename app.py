@@ -4,15 +4,20 @@ import numpy as np
 import os
 from collections import deque
 from flask import Flask, render_template, Response, jsonify, request
-import asyncio
+from flask_socketio import SocketIO, join_room, leave_room, emit
 
 app = Flask(__name__)
+socketio = SocketIO(app)
+
+# 방과 사용자를 매핑할 딕셔너리를 생성합니다.
+rooms = {}
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
 
 client_speech = ""
+is_processing = False
 
 class LipMovement:
     def __init__(self, name):
@@ -60,7 +65,10 @@ name = "?"
 
 def process_frame(data):
     global latest_speaker_position
+    global is_processing 
     global name
+
+    is_processing = True
 
     image = cv2.imdecode(data, cv2.IMREAD_COLOR)
 
@@ -102,31 +110,22 @@ def process_frame(data):
             width_average, height_average = movements[min_distance_index].check_movement(
                 lip_width / eye_width * 100,
                 lip_height / eye_width * 100)
-            # text = f"w: {width_average}, h: {height_average}"
 
             if height_average > 3 or width_average > 3:
-                # cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 255, 0), 1)
                 difference[min_distance_index] = height_average + width_average
                 has_speaker = True
 
             if np.argmax(difference) == min_distance_index:
                 latest_speaker_position = (face.left(), face.bottom() + 60)
-
-            # if latest_speaker_position:
-            #     # draw_text(frame, client_speech, pos=latest_speaker_position)
-
-            # cv2.putText(frame, f"{name} ({match_rate:.2%})", (face.left(), face.bottom() + 20),
-            #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
         
         else:  # 매치율이 0.5보다 작을 경우
             name = "Unknown"  # Unknown으로 표시
-            # cv2.putText(frame, f"{name}", (face.left(), face.bottom() + 20),
-            #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
     if not has_speaker and client_speech:
         if not faces:  # 얼굴이 감지되지 않을 경우
             name = "Unknown"
-        # draw_text(frame, client_speech, pos=(frame.shape[1] // 2, frame.shape[0] - 30))
+
+    is_processing = False
 
     return
 
@@ -176,5 +175,40 @@ def camera():
         # 다른 메서드의 경우 오류 응답을 반환합니다.
         return '허용되지 않는 메서드입니다.', 405
 
+@app.route('/chatroom')
+def chatroom():
+    return render_template('chatroom.html')
+
+@socketio.on('join')
+def on_join(data):
+    username = data['username']
+    room_id = data['room_id']
+
+    # 방이 존재하지 않으면 새로 생성
+    if room_id not in rooms:
+        rooms[room_id] = set()
+
+    # 사용자를 해당 방에 추가하고 방에 조인
+    rooms[room_id].add(username)
+    join_room(room_id)
+
+    # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
+    emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
+
+
+@socketio.on('leave')
+def on_leave(data):
+    username = data['username']
+    room_id = data['room_id']
+
+    # 방에서 사용자 제거하고 방에서 나가기
+    if room_id in rooms and username in rooms[room_id]:
+        rooms[room_id].remove(username)
+        leave_room(room_id)
+
+        # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
+        emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
+
+
 if __name__ == '__main__':
-    app.run(threaded=True)
+    socketio.run(app, debug=True)

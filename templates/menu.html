@@ -5,36 +5,39 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/menu-style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style3.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <title>Over the glass</title>
+    <title>Document</title>
     <script>
         function goToConversationMode() {
             location.href = "{{ url_for('conversation_mode') }}";
+        }
+
+        function joinChatRoom() {
+            location.href = "{{ url_for('chatroom') }}";
         }
     </script>
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="navbar__logo">
-            <i class="fa-brands fa-accusoft"></i>
-            <a href="">Over the glass</a>
-            <a href="" class="material-symbols-outlined">menu</a>
-        </div>
+    <div class="navbar_logo">
+        <i class="fa-brands fa-accusoft"></i>
+        <a href="">Over the glass</a>
+        <a href="" class="material-symbols-outlined">menu</a>
+    </div>
 
-        <ul class="navbar__menu">
-            <li><a href="">홈</a></li>
-            <li><a href="">프로젝트 소개</a></li>
-            <li><a href="">사용 방법 안내</a></li>
-            <li><a href="">대화 모드</a></li>
-            <li><a href="">영상 시청 모드</a></li>
-            <li><a href="">설정</a></li>
-        </ul>
+    <ul class="navbar__menu">
+        <li><a href="">홈</a></li>
+        <li><a href="">프로젝트 소개</a></li>
+        <li><a href="">사용 방법 안내</a></li>
+        <li><a href="">대화 모드</a></li>
+        <li><a href="">영상 시청 모드</a></li>
+        <li><a href="">설정</a></li>
+    </ul>
 
-        <a href="#" class="navbar__toogleBtn">
-            <i class="fas fa-bars"></i>
-        </a>
+    <a href="#" class="navbar__toogleBtn">
+        <i class="fas fa-bars"></i>
+    </a>
 
 
     </nav>
@@ -43,8 +46,8 @@
         <button class="open_X">영상시청모드</button>
         <div class="container">
             <div class="modal">
-                <button id="close" onclick="goToConversationMode()">대화방 생성하기</button>
-                <button id="input_c">대화방 참여하기</button>
+                <button id="close" onclick="goToConversationMode()">방 생성</button>
+                <button id="input_c" onclick="joinChatRoom()">코드 입력</button>
                 <button class="close">Close</button>
             </div>
         </div>
