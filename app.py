@@ -13,6 +13,7 @@ predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
 
 client_speech = ""
+is_processing = False
 
 class LipMovement:
     def __init__(self, name):
@@ -60,7 +61,10 @@ name = "?"
 
 def process_frame(data):
     global latest_speaker_position
+    global is_processing 
     global name
+
+    is_processing = True
 
     image = cv2.imdecode(data, cv2.IMREAD_COLOR)
 
@@ -116,6 +120,8 @@ def process_frame(data):
     if not has_speaker and client_speech:
         if not faces:  # 얼굴이 감지되지 않을 경우
             name = "Unknown"
+
+    is_processing = False
 
     return
 
