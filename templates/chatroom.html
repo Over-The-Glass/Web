@@ -17,10 +17,12 @@
     </div>
     <div class="join-wrapper">
         <form id="join-form">
+            <input type="text" id="username" placeholder="이름" required>
             <input type="text" id="room_id" placeholder="대화방 코드(네 자리 숫자)" required>
             <button type="submit">대화방 참여</button>
         </form>
     </div>
+    <div id="message-container"></div>
     <script>
         const socket = io();
 
