@@ -102,31 +102,20 @@ def process_frame(data):
             width_average, height_average = movements[min_distance_index].check_movement(
                 lip_width / eye_width * 100,
                 lip_height / eye_width * 100)
-            # text = f"w: {width_average}, h: {height_average}"
 
             if height_average > 3 or width_average > 3:
-                # cv2.rectangle(frame, (face.left(), face.top()), (face.right(), face.bottom()), (0, 255, 0), 1)
                 difference[min_distance_index] = height_average + width_average
                 has_speaker = True
 
             if np.argmax(difference) == min_distance_index:
                 latest_speaker_position = (face.left(), face.bottom() + 60)
-
-            # if latest_speaker_position:
-            #     # draw_text(frame, client_speech, pos=latest_speaker_position)
-
-            # cv2.putText(frame, f"{name} ({match_rate:.2%})", (face.left(), face.bottom() + 20),
-            #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
         
         else:  # 매치율이 0.5보다 작을 경우
             name = "Unknown"  # Unknown으로 표시
-            # cv2.putText(frame, f"{name}", (face.left(), face.bottom() + 20),
-            #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
     if not has_speaker and client_speech:
         if not faces:  # 얼굴이 감지되지 않을 경우
             name = "Unknown"
-        # draw_text(frame, client_speech, pos=(frame.shape[1] // 2, frame.shape[0] - 30))
 
     return
 
