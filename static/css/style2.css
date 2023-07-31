@@ -30,10 +30,6 @@ form {
     padding-top: 20px;
 }
 
-input[type="checkbox"] {
-    left: 20px;
-}
-
 p {
     font-size: 30px;
     /* text-align: center; */
@@ -69,7 +65,7 @@ p {
     box-sizing: border-box;
     margin-bottom: 16px;
     border-radius: 6px;
-    background-color: #F8F8F8;
+    background-color: #F6FAF9;
 }
 
 #login-form>input::placeholder {
@@ -84,9 +80,10 @@ p {
     height: 48px;
     padding: 10px;
     box-sizing: border-box;
+    margin-bottom: 16px;
     border-radius: 6px;
-    background-color: #8EA7E9;
-    color: #F6FAF9;
+    background-color: #EAEAEA;
+    color: #6B6666;
 }
 
 
@@ -94,14 +91,5 @@ p {
     text-align: center;
     display: inline-block;
     border-radius: 3px;
-    background-color: #d2d2d2;
-} */
-
-
-/* .social-login-wrapper {
-    padding: 10px;
-}
-
-#social-login-wrapper>button {
-    padding: 10px;
+    background-color: #8EA7E9;
 } */
