@@ -11,6 +11,9 @@
             function goToConversationMode(){
                 location.href = "{{ url_for('conversation_mode') }}";
             }
+            function joinChatRoom(){
+                location.href = "{{ url_for('chatroom') }}";
+            }
         </script>
     </head>
     <body>
@@ -24,7 +27,7 @@
         <div class="container">
             <div class="modal">
                 <button id="close" onclick="goToConversationMode()">방 생성</button>
-                <button id="input_c">코드 입력</button>
+                <button id="input_c" onclick="joinChatRoom()">코드 입력</button>
                 <button class="close">Close</button>
             </div>
         </div>
