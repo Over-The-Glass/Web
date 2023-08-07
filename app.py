@@ -1,3 +1,4 @@
+import random
 import dlib
 import cv2
 import numpy as np
@@ -130,17 +131,21 @@ def process_frame(data):
     return
 
 @app.route('/')
+def main():
+    return render_template('main.html')
+
+@app.route('/login')
 def login():
     return render_template('login.html')
 
-@app.route('/join', methods=['GET'])
-def join():
-    return render_template('join.html')
+@app.route('/signup', methods=['GET'])
+def signup():
+    return render_template('signup.html')
 
 
-@app.route('/conversation-mode')
-def conversation_mode():
-    return render_template('conversation-mode.html')
+@app.route('/chatroom')
+def chatroom():
+    return render_template('chatroom.html')
 
 @app.route('/menu')
 def menu():
@@ -179,9 +184,15 @@ def camera():
         # 다른 메서드의 경우 오류 응답을 반환합니다.
         return '허용되지 않는 메서드입니다.', 405
 
-@app.route('/chatroom')
-def chatroom():
-    return render_template('chatroom.html')
+@app.route('/join_chatroom')
+def join_chatroom():
+    return render_template('join_chatroom.html')
+
+def generateRoomID():
+    while(True):
+        room_id = f'{random.randint(0, 9999):04}'
+        if room_id not in rooms:
+            return room_id
 
 @socketio.on('join')
 def on_join(data):
@@ -189,8 +200,11 @@ def on_join(data):
     room_id = data['room_id']
 
     # 방이 존재하지 않으면 새로 생성
-    if room_id not in rooms:
+    if room_id == -1:
+        room_id = generateRoomID()
         rooms[room_id] = set()
+    
+    print(room_id)
 
     # 사용자를 해당 방에 추가하고 방에 조인
     rooms[room_id].add(username)
@@ -212,6 +226,10 @@ def on_leave(data):
 
         # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
         emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
+
+        # 방에 사용자가 더 이상 없으면 방을 삭제
+        if not rooms[room_id]:
+            del rooms[room_id]
 
 
 if __name__ == '__main__':
