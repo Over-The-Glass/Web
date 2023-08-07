@@ -1,50 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/style3.css') }}">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-        <title>Document</title>
-        <script>
-            function goToConversationMode(){
-                location.href = "{{ url_for('conversation_mode') }}";
-            }
-            function joinChatRoom(){
-                location.href = "{{ url_for('chatroom') }}";
-            }
-        </script>
-    </head>
-    <body>
-        <div class="navbar_logo">
-            <i class="fa-brands fa-accusoft"></i>
-            <a href="">Over the glass</a>
-            <a href="" class="material-symbols-outlined">menu</a>
+{% extends "base.html" %}
+{% block head %}
+    <script>
+        function goToConversationMode(){
+            location.href = "{{ url_for('chatroom') }}";
+        }
+        function joinChatRoom(){
+            location.href = "{{ url_for('join_chatroom') }}";
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <button class="open">대화모드</button>
+    <button class="open_X">영상시청모드</button>
+    <div class="container">
+        <div class="modal">
+            <button id="close" onclick="goToConversationMode()">방 생성</button>
+            <button id="input_c" onclick="joinChatRoom()">코드 입력</button>
+            <button class="close">Close</button>
         </div>
-        <button class="open">대화모드</button>
-        <button class="open_X">영상시청모드</button>
-        <div class="container">
-            <div class="modal">
-                <button id="close" onclick="goToConversationMode()">방 생성</button>
-                <button id="input_c" onclick="joinChatRoom()">코드 입력</button>
-                <button class="close">Close</button>
-            </div>
-        </div>
-        <script>
-            const openButton = document.querySelector('.open');
-            const container = document.querySelector('.container');
-            const closeButton = document.querySelector('.close');
-            
-            openButton.addEventListener('click', () => {
-                container.style.display = 'flex';
+    </div>
+    <script>
+        const openButton = document.querySelector('.open');
+        const container = document.querySelector('.container');
+        const closeButton = document.querySelector('.close');
+        
+        openButton.addEventListener('click', () => {
+            container.style.display = 'flex';
 
-            });
+        });
 
-            closeButton.addEventListener('click', () => {
-                container.style.display = 'none';
+        closeButton.addEventListener('click', () => {
+            container.style.display = 'none';
 
-            });
-        </script>
-    </body>
-</html>
+        });
+    </script>
+{% endblock %}
