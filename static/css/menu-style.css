@@ -10,6 +10,73 @@ body {
     font-size: 14px;
 }
 
+* {
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    list-style: none;
+}
+
+a {
+    position: relative;
+    z-index: 5;
+    text-decoration: none;
+    color: #f0f4f5;
+    font-size: 40px;
+}
+
+.menu {
+    margin-top: -35px;
+    /* width: 800px; */
+    overflow: hidden;
+    /* margin: 150px auto; */
+}
+
+.menu>li {
+    position: relative;
+    z-index: 2;
+    width: 300px;
+    /*20*5=100%*/
+    float: right;
+    text-align: center;
+    /* line-height: 40px; */
+    background-color: #7286D3;
+}
+
+#menu_bar {
+    font-size: small;
+}
+
+.menu a {
+    color: #fff;
+}
+
+.submenu>li {
+    margin-top: 25px;
+    line-height: 50px;
+    background-color: #7286D3;
+    margin-left: 50px;
+}
+
+.submenu {
+    height: 0;
+    /*ul의 높이를 안보이게 처리*/
+    overflow: hidden;
+}
+
+.menu>li:hover {
+    background-color: #7286D3;
+    transition-duration: 0.5s;
+}
+
+.menu>li:hover .submenu {
+    height: 450px;
+    /*서브메뉴 li한개의 높이 50*5*/
+    transition-duration: 1s;
+}
+
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -18,8 +85,9 @@ body {
     padding: 8px 12px;
 }
 
-.navbar__logo {
+.navbar_logo {
     background-color: #7286D3;
+    height: 60px;
 }
 
 .navbar__menu {
@@ -37,12 +105,6 @@ body {
     border-radius: 4px;
 }
 
-a {
-    text-decoration: none;
-    color: #f0f4f5;
-    font-size: 40px;
-}
-
 div {
     text-align: center;
     margin: 0 auto;
@@ -50,13 +112,17 @@ div {
 
 .material-symbols-outlined {
     color: rgb(255, 255, 255);
-    display: inline-block;
-    padding-top: 15px;
+    float: right;
+    margin-right: 30px;
+    /* display: inline-block; */
+    /* padding-top: 15px;
     position: absolute;
-    right: 32px;
+    right: 32px; */
 }
 
 button {
+    position: relative;
+    z-index: 0;
     border: none;
     color: #000000;
     background-color: #E5E0FF;
@@ -98,40 +164,9 @@ button:hover {
     box-shadow: 3px 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.navbar__toogleBtn {
-    display: none;
+.navbar__toggleBtn {
+    color: var(--accent-color);
     position: absolute;
-    right: 32px;
-    font-size: 24px;
-    color: #d49466;
-}
-
-@media screen and (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 8px 24px;
-    }
-    .navbar__menu {
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-    }
-    .navbar__menu li {
-        width: 100%;
-        text-align: center;
-    }
-    .navbar__icons {
-        display: none;
-        justify-content: center;
-        width: 100%;
-    }
-    .navbar__toogleBtn {
-        display: block;
-    }
-    .navbar__menu.active,
-    .navbar__icons.active {
-        display: flex;
-    }
+    right: 15px;
+    font-size: 20px;
 }
