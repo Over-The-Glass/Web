@@ -3,12 +3,26 @@ import dlib
 import cv2
 import numpy as np
 import os
+import pymysql
 from collections import deque
 from flask import Flask, render_template, Response, jsonify, request
 from flask_socketio import SocketIO, join_room, leave_room, emit
 
 app = Flask(__name__)
 socketio = SocketIO(app)
+
+db = pymysql.connect(host='localhost', user='root', password='0000', db='db')
+
+with db.cursor() as cursor:
+    try:
+        # 예시로 데이터베이스에 있는 테이블 목록을 가져옵니다.
+        cursor.execute('SHOW TABLES')
+        tables = cursor.fetchall()
+        table_names = [table[0] for table in tables]
+        print(f'Database connection successful! Tables: {", ".join(table_names)}')
+    except Exception as e:
+        print(f'Database connection failed: {e}')
+
 
 # 방과 사용자를 매핑할 딕셔너리를 생성합니다.
 rooms = {}
@@ -164,15 +178,22 @@ def process_speech():
 @app.route('/camera', methods=['POST'])
 def camera():
     if request.method == 'POST':
-        # 요청에서 카메라 프레임 데이터를 가져옵니다.
-        frame_data = np.frombuffer(request.data, dtype=np.uint8)
-
-        # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
-        print('Received camera frame:', len(frame_data), 'bytes')
+        global is_processing 
 
         # 프레임 데이터를 처리하고 처리된 프레임을 JPEG 형식으로 얻습니다.
-        process_frame(frame_data)
-        print(name)
+        if is_processing == True :
+            print("already processing")
+        else :
+            print("start processing")
+            
+            # 요청에서 카메라 프레임 데이터를 가져옵니다.
+            frame_data = np.frombuffer(request.data, dtype=np.uint8)
+
+        # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
+            print('Received camera frame:', len(frame_data), 'bytes')
+            process_frame(frame_data)
+            print(name)
+            
 
         # 응답으로는 프레임 데이터가 아닌 성공 상태를 반환합니다.
         return 'Success'
@@ -229,4 +250,4 @@ def on_leave(data):
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=80, debug=True)

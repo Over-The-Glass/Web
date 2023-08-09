@@ -22,12 +22,6 @@ a {
     text-decoration: none;
 }
 
-#app_name {
-    color: var(--text);
-    font-size: 24px;
-    flex: 1;
-}
-
 div {
     text-align: center;
 }
@@ -67,6 +61,15 @@ button:hover {
     justify-content: space-between;
     align-items: center;
     background-color: var(--main);
+}
+
+.title_logo {
+    padding: 5px 0px 0px 57px;
+    flex: 1;
+}
+
+.title_logo img {
+    height: 40px;
 }
 
 .side_bar {
@@ -155,6 +158,10 @@ button:hover {
 
 .navbar_logo {
     background-color: var(--main);
+}
+
+.content {
+    height: 100%;
 }
 
 .container {
