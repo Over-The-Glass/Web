@@ -165,6 +165,10 @@ def chatroom():
 def menu():
     return render_template('menu.html')
 
+@app.route('/setting')
+def settings():
+    return render_template('settings.html')
+
 @app.route('/speaker_info')
 def speaker_info():
     return jsonify({'speaker': name})

@@ -1,37 +1,36 @@
-{% extends "base.html" %}
-{% block head %}
-    <script>
-        function goToConversationMode(){
-            location.href = "{{ url_for('chatroom') }}";
-        }
-        function joinChatRoom(){
-            location.href = "{{ url_for('join_chatroom') }}";
-        }
-    </script>
-{% endblock %}
-{% block content %}
-    <button class="open">대화모드</button>
-    <button class="open_X">영상시청모드</button>
-    <div class="container">
-        <div class="modal">
-            <button id="close" onclick="goToConversationMode()">방 생성</button>
-            <button id="input_c" onclick="joinChatRoom()">코드 입력</button>
-            <button class="close">Close</button>
-        </div>
+{% extends "base.html" %} {% block head %}
+<script>
+    function goToConversationMode() {
+        location.href = "{{ url_for('chatroom') }}";
+    }
+
+    function joinChatRoom() {
+        location.href = "{{ url_for('join_chatroom') }}";
+    }
+</script>
+{% endblock %} {% block content %}
+<button class="open">대화모드</button>
+<button class="open_X">영상시청모드</button>
+<div class="container">
+    <div class="modal">
+        <button id="close" onclick="goToConversationMode()">방 생성</button>
+        <button id="input_c" onclick="joinChatRoom()">코드 입력</button>
+        <button class="close">Close</button>
     </div>
-    <script>
-        const openButton = document.querySelector('.open');
-        const container = document.querySelector('.container');
-        const closeButton = document.querySelector('.close');
-        
-        openButton.addEventListener('click', () => {
-            container.style.display = 'flex';
+</div>
+<script>
+    const openButton = document.querySelector('.open');
+    const container = document.querySelector('.container');
+    const closeButton = document.querySelector('.close');
 
-        });
+    openButton.addEventListener('click', () => {
+        container.style.display = 'flex';
 
-        closeButton.addEventListener('click', () => {
-            container.style.display = 'none';
+    });
 
-        });
-    </script>
+    closeButton.addEventListener('click', () => {
+        container.style.display = 'none';
+
+    });
+</script>
 {% endblock %}
