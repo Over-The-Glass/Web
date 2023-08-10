@@ -11,17 +11,17 @@ from flask_socketio import SocketIO, join_room, leave_room, emit
 app = Flask(__name__)
 socketio = SocketIO(app)
 
-db = pymysql.connect(host='localhost', user='root', password='0000', db='db')
+# db = pymysql.connect(host='localhost', user='root', password='0000', db='db')
 
-with db.cursor() as cursor:
-    try:
-        # 예시로 데이터베이스에 있는 테이블 목록을 가져옵니다.
-        cursor.execute('SHOW TABLES')
-        tables = cursor.fetchall()
-        table_names = [table[0] for table in tables]
-        print(f'Database connection successful! Tables: {", ".join(table_names)}')
-    except Exception as e:
-        print(f'Database connection failed: {e}')
+# with db.cursor() as cursor:
+#     try:
+#         # 예시로 데이터베이스에 있는 테이블 목록을 가져옵니다.
+#         cursor.execute('SHOW TABLES')
+#         tables = cursor.fetchall()
+#         table_names = [table[0] for table in tables]
+#         print(f'Database connection successful! Tables: {", ".join(table_names)}')
+#     except Exception as e:
+#         print(f'Database connection failed: {e}')
 
 
 # 방과 사용자를 매핑할 딕셔너리를 생성합니다.
