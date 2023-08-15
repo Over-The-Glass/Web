@@ -18,17 +18,8 @@ input::placeholder {
 }
 
 input[type="checkbox"] {
-    left: 20px;
-}
-
-.material-symbols-outlined {
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
-    color: #F6FAF9;
-    display: inline-block;
-    padding-top: 15px;
-    position: absolute;
-    left: -40px;
-    margin-left: 70px;
+    width: fit-content;
+    height: fit-content;
 }
 
 .wrapper {
@@ -49,4 +40,13 @@ form>button[type="submit"] {
     border-radius: 6px;
     background-color: #8EA7E9;
     color: #F6FAF9;
+}
+
+.text_link {
+    display: flex;
+    justify-content: space-between;
+}
+
+.text_link a {
+    color: black;
 }
