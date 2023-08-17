@@ -193,7 +193,7 @@ def camera():
             # 요청에서 카메라 프레임 데이터를 가져옵니다.
             frame_data = np.frombuffer(request.data, dtype=np.uint8)
 
-        # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
+            # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
             print('Received camera frame:', len(frame_data), 'bytes')
             process_frame(frame_data)
             print(name)
