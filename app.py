@@ -156,7 +156,6 @@ def login():
 def signup():
     return render_template('signup.html')
 
-
 @app.route('/chatroom')
 def chatroom():
     return render_template('chatroom.html')
@@ -164,6 +163,10 @@ def chatroom():
 @app.route('/menu')
 def menu():
     return render_template('menu.html')
+
+@app.route('/record')
+def record():
+    return render_template('record.html')
 
 @app.route('/setting')
 def settings():

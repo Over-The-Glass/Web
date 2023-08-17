@@ -13,8 +13,10 @@
 <button class="open_X">영상시청모드</button>
 <div class="container">
     <div class="modal">
-        <button id="close" onclick="goToConversationMode()">방 생성</button>
-        <button id="input_c" onclick="joinChatRoom()">코드 입력</button>
+        <button id="close" onclick="goToConversationMode()">대화방 생성하기</button>
+        <button id="input_c" onclick="joinChatRoom()">코드 입력하기</button>
+        <a href=" {{ url_for('record') }}"><input type="button" value="대화 기록 확인하기" id="input_d"></a>
+        <!-- <button id="input_d">대화 기록 확인하기</button> -->
         <button class="close">Close</button>
     </div>
 </div>
