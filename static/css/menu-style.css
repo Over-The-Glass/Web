@@ -49,6 +49,19 @@ a {
     font-size: small;
 }
 
+#input_d {
+    border: none;
+    color: #000000;
+    background-color: var(--button);
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 25px;
+    width: 160px;
+    height: 55px;
+    flex-shrink: 0;
+    margin: 8px;
+}
+
 .menu a {
     color: #fff;
 }
