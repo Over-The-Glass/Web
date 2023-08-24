@@ -18,6 +18,7 @@ app.secret_key ="Over_the_Glass"
 app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
 socketio = SocketIO(app)
 
+# 각자 데이터베이스에 맞춰서 변경 
 db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
@@ -153,8 +154,8 @@ def process_frame(data):
     return
 
 @app.route('/')
-def login():
-    return render_template('login.html')
+def main():
+    return render_template('main.html')
 
 @app.route('/login', methods=['GET'])
 def login():
@@ -326,9 +327,13 @@ def logout():
     #session.pop('email', None)
     return render_template('main.html')
 
+@app.route('/record')
+def record():
+    return render_template('record.html')
+
 @app.route('/setting')
 def settings():
-    return render_template('settings.html')   
+    return render_template('settings.html')
 
 @app.route('/speaker_info')
 def speaker_info():
@@ -343,19 +348,13 @@ def process_speech():
 @app.route('/camera', methods=['POST'])
 def camera():
     if request.method == 'POST':
-        global is_processing 
-        
-        # 프레임 데이터를 처리하고 처리된 프레임을 JPEG 형식으로 얻습니다.
-        if is_processing == True :
-            print("already processing")
-        else :
-            print("start processing")
-            
-            # 요청에서 카메라 프레임 데이터를 가져옵니다.
-            frame_data = np.frombuffer(request.data, dtype=np.uint8)
+        # 요청에서 카메라 프레임 데이터를 가져옵니다.
+        frame_data = np.frombuffer(request.data, dtype=np.uint8)
 
         # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
         print('Received camera frame:', len(frame_data), 'bytes')
+
+        # 프레임 데이터를 처리하고 처리된 프레임을 JPEG 형식으로 얻습니다.
         process_frame(frame_data)
         print(name)
 
@@ -381,9 +380,10 @@ def on_join(data):
     room_id = data['room_id']
 
     # 방이 존재하지 않으면 새로 생성
-    if room_id not in rooms:
+    if room_id == -1:
+        room_id = generateRoomID()
         rooms[room_id] = set()
-        
+    
     print(room_id)
 
     # 사용자를 해당 방에 추가하고 방에 조인
@@ -413,4 +413,4 @@ def on_leave(data):
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=80, debug=True)

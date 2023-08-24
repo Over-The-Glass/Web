@@ -55,7 +55,7 @@ p {
     box-sizing: border-box;
 }
 
-#signup-form>input {
+#login-form>input {
     border-top: none;
     border-left: none;
     border-right: none;
@@ -68,11 +68,11 @@ p {
     background-color: #F6FAF9;
 }
 
-#signup-form>input::placeholder {
+#login-form>input::placeholder {
     color: #d2d2d2;
 }
 
-#signup-form>button[type="button"] {
+#login-form>button[type="button"] {
     border-top: none;
     border-left: none;
     border-right: none;
