@@ -1,13 +1,36 @@
+import random
 import dlib
 import cv2
 import numpy as np
 import os
+import pymysql
 from collections import deque
-from flask import Flask, render_template, Response, jsonify, request
+from flask import Flask, render_template, Response, jsonify, request, flash, session
 from flask_socketio import SocketIO, join_room, leave_room, emit
+import hashlib
+from datetime import datetime, timedelta
+import jwt
+from functools import wraps
+
 
 app = Flask(__name__)
+app.secret_key ="Over_the_Glass"
+app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
 socketio = SocketIO(app)
+
+db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
+m = hashlib.sha256()
+m.update('Over the Glass'.encode('utf-8'))
+
+with db.cursor() as cursor:
+    try:
+        # 예시로 데이터베이스에 있는 테이블 목록을 가져옵니다.
+        cursor.execute('SHOW TABLES')
+        tables = cursor.fetchall()
+        table_names = [table[0] for table in tables]
+        print(f'Database connection successful! Tables: {", ".join(table_names)}')
+    except Exception as e:
+        print(f'Database connection failed: {e}')
 
 # 방과 사용자를 매핑할 딕셔너리를 생성합니다.
 rooms = {}
@@ -133,18 +156,179 @@ def process_frame(data):
 def login():
     return render_template('login.html')
 
-@app.route('/join', methods=['GET'])
-def join():
-    return render_template('join.html')
+@app.route('/login', methods=['GET'])
+def login():
+    return render_template('login.html')
 
+@app.route('/login', methods=['POST'])
+def login_process():
+    data = request.form
+    email = data['userEmail']
+    pw = data['userPassword1']
+    
+    # 모든 정보가 입력되었는지 확인     
+    # 이메일 혹은 비밀번호 미입력 시 바로 에러 응답을 반환
+    if not email or not pw:
+        return jsonify({'error': 'Information not entered 입력되지 않은 정보가 있습니다'}), 400
+        
+    with db.cursor() as cursor:
+        # DB에 입력된 이메일과 일치하는 사용자 정보 조회
+            query = "SELECT * FROM Users WHERE email = %s"
+            cursor.execute(query, (email,))
+            user = cursor.fetchone()
 
-@app.route('/conversation-mode')
-def conversation_mode():
-    return render_template('conversation-mode.html')
+            if user:           
+                # 회원가입과 같은 방법으로 pw를 암호화
+                pw_hash =hashlib.sha256(pw.encode('utf-8')).hexdigest()
+                
+                # DB에 저장된 해시된 패스워드는 user의 3번 인덱스에 위치
+                stored_hashed_pw = user[3] 
+                # 0 user_pkey 1 name 2 email 3 pwd 4 subtitle 
+                name = user[1]
+                email = user[2]
+                    
+                # DB에서 조회한 해시된 패스워드와 입력된 패스워드를 비교
+                if pw_hash == stored_hashed_pw:
+                    payload = {
+                        'name': name,
+                        'email': email,
+                        'exp': datetime.utcnow() + timedelta(seconds=60*60*24) # 만료 24 hour
+                    }
+                    # 토큰 생성 
+                    token = jwt.encode(payload, app.config['JWT_SECRET_KEY'] ,'HS256')
+                    return jsonify({'message': 'Login successful 로그인 완료되었습니다.', 'access_token':token}), 200
+                else:                  
+                    return jsonify({'error': 'Not match password 비밀번호가 일치하지 않습니다.'}), 401
+                
+            else:
+                # 사용자 없음
+                return jsonify({'error': 'No user 회원이 존재하지 않습니다.'}), 404
+                       
+         
+    #resp = make_response(render_template('menu.html'))
+    #resp.set_cookie('info', email)
+    #return resp
+
+"""
+# token을 decode하여 반환, 실패 시 payload = None
+def check_access_token(access_token):
+    try:
+        payload = jwt.decode(access_token, app.config['JWT_SECRET_KEY'] ,'HS256')
+        # 토큰 만료된 경우
+        if payload['exp'] < datetime.utcnow():
+            payload = None
+            
+    except jwt.InvalidTokenError:
+        payload=None
+    
+    return payload
+
+# decorator 함수
+def login_required(f):
+    def decorated_function(*args, **kwagrs):
+        if "Authorization" not in request.headers:
+            return jsonify({"error": "No Authorization in header"}),401
+        # 요청 토큰 정보 받아오기
+        access_token = request.headers.get('Authorization') 
+        print("access_token", access_token)
+        if access_token is not None:
+            payload = check_access_token(access_token)
+            print("payload",payload)
+            if payload is None:
+                return jsonify({'error': 'Payload is None.'}), 401
+        else:
+            return jsonify({'error': 'No Token.'}), 401
+        
+        return f(*args, **kwagrs)
+    
+    return decorated_function
+"""
+
+@app.route('/signup', methods=['GET'])
+def signup():
+    return render_template('signup.html')
+
+@app.route('/signup', methods=['POST'])
+def signup_process():
+    try:
+        data = request.form
+        username = data['userName']
+        email = data['userEmail']
+        pwd1 = data['userPassword1']
+        pwd2 = data['userPassword2']
+        sub = request.form.getlist('subtitle') 
+        sub_value = 1
+        
+        """
+        print(type(sub))
+        print(data)
+        print(username, email, pwd1, pwd2, sub)
+        
+        # 모든 데이터 읽어오기
+        select_query = "select * from users"
+        with db.cursor() as cursor:
+            cursor.execute(select_query)
+            result = cursor.fetchall()
+            print(result)
+        """
+        
+        
+        # 모든 정보가 입력되었는지 확인 
+        if (username and email and pwd1 and pwd2):            
+            with db.cursor() as cursor:
+            
+                # DB에 같은 이메일을 가진 회원이 있는지 확인
+                query = "SELECT * FROM users WHERE email=%s";
+                cursor.execute(query, (email,));
+                existing_user = cursor.fetchone()
+                if existing_user:
+                    return jsonify({'error': 'Email already in use 이미 사용 중인 이메일입니다.'})
+                 
+                # 비밀번호 일치 확인
+                if pwd1 != pwd2:
+                    return jsonify({'error': 'The password does not match 비밀번호가 일치하지 않습니다.'}), 400
+
+                # 자막 사용 여부 1(default)
+                # When unchecked: sub = [], checked: sub = ['1']
+                if not sub: 
+                    sub_value = 0
+                
+                # 비밀번호 해시  sha256 방법(=단방향 암호화. 풀어볼 수 없음)
+                pw_hash = hashlib.sha256(pwd1.encode('utf-8')).hexdigest()
+                
+                # 새로운 사용자 추가
+                insert_query = "INSERT INTO users (name, email, pwd, subtitle) VALUES (%s, %s, %s, %s)"
+                cursor.execute(insert_query, (username, email, pw_hash, sub_value))
+                db.commit()
+                return jsonify({'message': 'Sign-up successful 회원가입이 완료되었습니다.'}), 200
+            
+        else:
+            return jsonify({'error': 'Information not entered 입력되지 않은 정보가 있습니다'})
+        
+                           
+    except Exception as e:
+        print(f'회원가입 중 오류 발생: {e}')
+        db.rollback()
+        return jsonify({'error': 'sign-up failed'}), 500
+        
+ 
+ 
+@app.route('/chatroom')
+def chatroom():
+    return render_template('chatroom.html')   
 
 @app.route('/menu')
 def menu():
     return render_template('menu.html')
+
+@app.route('/logout')
+def logout():
+    #session.pop('email', None)
+    return render_template('main.html')
+
+@app.route('/setting')
+def settings():
+    return render_template('settings.html')   
 
 @app.route('/speaker_info')
 def speaker_info():
@@ -159,13 +343,19 @@ def process_speech():
 @app.route('/camera', methods=['POST'])
 def camera():
     if request.method == 'POST':
-        # 요청에서 카메라 프레임 데이터를 가져옵니다.
-        frame_data = np.frombuffer(request.data, dtype=np.uint8)
+        global is_processing 
+        
+        # 프레임 데이터를 처리하고 처리된 프레임을 JPEG 형식으로 얻습니다.
+        if is_processing == True :
+            print("already processing")
+        else :
+            print("start processing")
+            
+            # 요청에서 카메라 프레임 데이터를 가져옵니다.
+            frame_data = np.frombuffer(request.data, dtype=np.uint8)
 
         # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
         print('Received camera frame:', len(frame_data), 'bytes')
-
-        # 프레임 데이터를 처리하고 처리된 프레임을 JPEG 형식으로 얻습니다.
         process_frame(frame_data)
         print(name)
 
@@ -175,9 +365,15 @@ def camera():
         # 다른 메서드의 경우 오류 응답을 반환합니다.
         return '허용되지 않는 메서드입니다.', 405
 
-@app.route('/chatroom')
-def chatroom():
-    return render_template('chatroom.html')
+@app.route('/join_chatroom')
+def join_chatroom():
+    return render_template('join_chatroom.html')
+
+def generateRoomID():
+    while(True):
+        room_id = f'{random.randint(0, 9999):04}'
+        if room_id not in rooms:
+            return room_id
 
 @socketio.on('join')
 def on_join(data):
@@ -187,6 +383,8 @@ def on_join(data):
     # 방이 존재하지 않으면 새로 생성
     if room_id not in rooms:
         rooms[room_id] = set()
+        
+    print(room_id)
 
     # 사용자를 해당 방에 추가하고 방에 조인
     rooms[room_id].add(username)
@@ -208,6 +406,10 @@ def on_leave(data):
 
         # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
         emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
+
+        # 방에 사용자가 더 이상 없으면 방을 삭제
+        if not rooms[room_id]:
+            del rooms[room_id]
 
 
 if __name__ == '__main__':

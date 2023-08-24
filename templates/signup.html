@@ -32,6 +32,45 @@
             <input type="button" value="회원가입" style="background-color: #8EA7E9; color: #F6FAF9;;">
         </form>
     </div>
+
+    <script>
+        function showAlert(message, redirectTo) {
+            alert(message);
+            if (redirectTo) {
+                window.location.href = redirectTo; // 지정된 페이지로 이동
+            }
+        }
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            var signupForm = document.getElementById("signup-form");
+            
+            signupForm.addEventListener("submit", function(event) {
+                event.preventDefault(); // 폼 기본 동작 중단
+                
+                var formData = new FormData(signupForm);
+                
+                fetch("/signup", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showAlert(data.error);
+                    } else {
+                        showAlert(data.message, "/login"); // 회원가입 성공 시 로그인 페이지로 이동
+                    }
+                })
+                .catch(error => {
+                    if (error.response) {
+                        var errorMessage = error.response.error;
+                        showAlert(errorMessage);
+                    }
+                });
+            });
+        });
+    </script>
+
 </body>
 
 </html>
