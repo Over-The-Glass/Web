@@ -12,7 +12,6 @@ from datetime import datetime, timedelta
 import jwt
 from functools import wraps
 
-
 app = Flask(__name__)
 app.secret_key ="Over_the_Glass"
 app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
@@ -312,7 +311,6 @@ def signup_process():
         db.rollback()
         return jsonify({'error': 'sign-up failed'}), 500
         
- 
  
 @app.route('/chatroom')
 def chatroom():

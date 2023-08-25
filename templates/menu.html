@@ -9,35 +9,6 @@
     }
 </script>
 {% endblock %} {% block content %}
-<button class="open">대화모드</button>
-<button class="open_X">영상시청모드</button>
-<div class="container">
-    <div class="modal">
-        <button id="close" onclick="goToConversationMode()">대화방 생성하기</button>
-        <button id="input_c" onclick="joinChatRoom()">코드 입력하기</button>
-        <a href=" {{ url_for('record') }}"><input type="button" value="대화 기록 확인하기" id="input_d"></a>
-        <!-- <button id="input_d">대화 기록 확인하기</button> -->
-        <button class="close">Close</button>
-    </div>
-</div>
-<script>
-    const openButton = document.querySelector('.open');
-    const container = document.querySelector('.container');
-    const closeButton = document.querySelector('.close');
-
-    openButton.addEventListener('click', () => {
-        container.style.display = 'flex';
-{% extends "base.html" %} {% block head %}
-<script>
-    function goToConversationMode() {
-        location.href = "{{ url_for('chatroom') }}";
-    }
-
-    function joinChatRoom() {
-        location.href = "{{ url_for('join_chatroom') }}";
-    }
-</script>
-{% endblock %} {% block content %}
 <h4 id="welcome-message">name님 환영합니다!</h4>
 <button class="open">대화모드</button>
 <button class="open_X">영상시청모드</button>
