@@ -17,7 +17,7 @@
     로그인
 {% endblock %}
 {% block content %}
-    <div class="wrapper">
+    <div class="wrapper" action="/login">
         <form method="post" id="login-form">
             <input type="email" name="userEmail" id="em" placeholder="이메일 주소 입력">
             <input type="password" name="userPassword1" id="pw" placeholder="비밀번호">
@@ -26,7 +26,8 @@
             </label>
 
             <!-- lable의 for의 값과 양식의 id의 값이 같으면 연결된다. -->
-            <button type="submit" onclick="login_()" id="login">로그인</button>
+            <input type="submit" value="로그인" style="background-color: #8EA7E9; color: #F6FAF9;;">
+            <!--button type="submit" onclick="login_()" id="login">로그인</button-->
             <div class="text_link">
                 <a href="">아이디 · 비밀번호 찾기</a>
                 <a href="{{ url_for('signup') }}">회원가입</a>
@@ -40,4 +41,56 @@
             </div> -->
         </form>
     </div>
+
+
+    <script>
+
+        function set_Cookies(token, days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = date.toUTCString();
+            }
+            document.cookie = 'token=' + token + '; expires=' + expires + '; path=/';
+        }
+
+        function showAlert(message, redirectTo) {
+            alert(message);
+            if (redirectTo) {
+                window.location.href = redirectTo; // 지정된 페이지로 이동
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var loginForm = document.getElementById("login-form");
+            
+            loginForm.addEventListener("submit", function(event) {
+                event.preventDefault(); // 폼 기본 동작 중단
+                
+                var formData = new FormData(loginForm);
+                
+                fetch("/login", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showAlert(data.error);
+                    } else {
+                        set_Cookies(data.access_token, 1); // 24시간 동안 토큰 보관
+                        showAlert(data.message, "/menu"); // 로그인 성공 시 메뉴 페이지로 이동           
+                    }
+                })
+                .catch(error => {
+                    if (error.response) {
+                        var errorMessage = error.response.error;
+                        showAlert(errorMessage);
+                    }
+                });
+            });
+        });
+           
+    </script>
 {% endblock %}
