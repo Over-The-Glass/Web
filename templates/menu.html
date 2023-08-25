@@ -9,14 +9,13 @@
     }
 </script>
 {% endblock %} {% block content %}
+<h4 id="welcome-message">name님 환영합니다!</h4>
 <button class="open">대화모드</button>
 <button class="open_X">영상시청모드</button>
 <div class="container">
     <div class="modal">
-        <button id="close" onclick="goToConversationMode()">대화방 생성하기</button>
-        <button id="input_c" onclick="joinChatRoom()">코드 입력하기</button>
-        <a href=" {{ url_for('record') }}"><input type="button" value="대화 기록 확인하기" id="input_d"></a>
-        <!-- <button id="input_d">대화 기록 확인하기</button> -->
+        <button id="close" onclick="goToConversationMode()">방 생성</button>
+        <button id="input_c" onclick="joinChatRoom()">코드 입력</button>
         <button class="close">Close</button>
     </div>
 </div>
@@ -34,5 +33,34 @@
         container.style.display = 'none';
 
     });
+
+    function getCookie(name) {
+        console.log("name",name)
+        var value = "; " + document.cookie;
+        console.log("value",value)
+        var parts = value.split("; " + name + "=");
+        if (parts.length === 2) {
+            return parts.pop().split(";").shift();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var welcomeMessage = document.getElementById("welcome-message");
+
+        var token = getCookie("token"); // 토큰 값 가져오기
+        console.log("token",token)
+        if (token) {
+            // 토큰이 존재할 경우 처리할 내용
+            // 예: 토큰을 해독하여 사용자 정보 가져오기 등
+            welcomeMessage.textContent = "토큰을 확인했습니다.";
+        } else {
+            welcomeMessage.textContent = "토큰이 없습니다.";
+        }
+    });
+   
+
+
+
+
 </script>
 {% endblock %}
