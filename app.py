@@ -186,6 +186,8 @@ def login_process():
                 # 0 user_pkey 1 name 2 email 3 pwd 4 subtitle 
                 name = user[1]
                 email = user[2]
+                print("app.py 189 name", name)
+                print("app.py 190 email", email)
                     
                 # DB에서 조회한 해시된 패스워드와 입력된 패스워드를 비교
                 if pw_hash == stored_hashed_pw:
@@ -209,13 +211,13 @@ def login_process():
     #resp.set_cookie('info', email)
     #return resp
 
-"""
 # token을 decode하여 반환, 실패 시 payload = None
 def check_access_token(access_token):
     try:
         payload = jwt.decode(access_token, app.config['JWT_SECRET_KEY'] ,'HS256')
+        expiration_time = datetime.fromtimestamp(payload['exp'])
         # 토큰 만료된 경우
-        if payload['exp'] < datetime.utcnow():
+        if expiration_time < datetime.utcnow():
             payload = None
             
     except jwt.InvalidTokenError:
@@ -226,23 +228,24 @@ def check_access_token(access_token):
 # decorator 함수
 def login_required(f):
     def decorated_function(*args, **kwagrs):
-        if "Authorization" not in request.headers:
-            return jsonify({"error": "No Authorization in header"}),401
+        #if "Authorization" not in request.headers:
+        if "token" not in request.cookies:
+            return jsonify({"error": "No token in cookies"}),401
         # 요청 토큰 정보 받아오기
-        access_token = request.headers.get('Authorization') 
+        access_token = request.cookies.get('token') 
         print("access_token", access_token)
         if access_token is not None:
+            # 토큰이 존재하면, 토큰 확인하고 payload 가져오기
             payload = check_access_token(access_token)
-            print("payload",payload)
+            print("payload", payload)
             if payload is None:
                 return jsonify({'error': 'Payload is None.'}), 401
         else:
             return jsonify({'error': 'No Token.'}), 401
         
-        return f(*args, **kwagrs)
+        return f(payload,*args, **kwagrs)
     
     return decorated_function
-"""
 
 @app.route('/signup', methods=['GET'])
 def signup():
@@ -317,9 +320,20 @@ def chatroom():
     return render_template('chatroom.html')   
 
 @app.route('/menu')
+@login_required # 로그인이 필요한 엔드포인트에는 데코레이터 추가
+def menu(payload):
+    if payload:
+        print("menu(payload), @login_required",payload)
+        name = payload.get('name')
+        print("menu(payload), @login_required",name)
+        return render_template('menu.html', name=name)
+    else:
+        return "Error", 401
+    
+"""
 def menu():
     return render_template('menu.html')
-
+"""
 @app.route('/logout')
 def logout():
     #session.pop('email', None)
