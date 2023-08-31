@@ -18,7 +18,7 @@ app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='0000', db='userdb')
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
 
@@ -227,23 +227,18 @@ def check_access_token(access_token):
 
 # decorator 함수
 def login_required(f):
-    def decorated_function(*args, **kwagrs):
-        #if "Authorization" not in request.headers:
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
         if "token" not in request.cookies:
-            return jsonify({"error": "No token in cookies"}),401
-        # 요청 토큰 정보 받아오기
-        access_token = request.cookies.get('token') 
-        print("access_token", access_token)
-        if access_token is not None:
-            # 토큰이 존재하면, 토큰 확인하고 payload 가져오기
-            payload = check_access_token(access_token)
-            print("payload", payload)
-            if payload is None:
-                return jsonify({'error': 'Payload is None.'}), 401
-        else:
-            return jsonify({'error': 'No Token.'}), 401
+            return jsonify({"error": "No token in cookies"}), 401
         
-        return f(payload,*args, **kwagrs)
+        access_token = request.cookies.get('token')
+        payload = check_access_token(access_token)
+        
+        if payload is None:
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        return f(payload, *args, **kwargs)
     
     return decorated_function
 
@@ -286,7 +281,7 @@ def signup_process():
                 existing_user = cursor.fetchone()
                 if existing_user:
                     return jsonify({'error': 'Email already in use 이미 사용 중인 이메일입니다.'})
-                 
+                
                 # 비밀번호 일치 확인
                 if pwd1 != pwd2:
                     return jsonify({'error': 'The password does not match 비밀번호가 일치하지 않습니다.'}), 400
@@ -320,15 +315,14 @@ def chatroom():
     return render_template('chatroom.html')   
 
 @app.route('/menu')
-@login_required # 로그인이 필요한 엔드포인트에는 데코레이터 추가
+@login_required
 def menu(payload):
     if payload:
-        print("menu(payload), @login_required",payload)
         name = payload.get('name')
-        print("menu(payload), @login_required",name)
         return render_template('menu.html', name=name)
     else:
         return "Error", 401
+
     
 """
 def menu():
@@ -365,10 +359,9 @@ def camera():
 
         # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
         print('Received camera frame:', len(frame_data), 'bytes')
-
-        # 프레임 데이터를 처리하고 처리된 프레임을 JPEG 형식으로 얻습니다.
         process_frame(frame_data)
         print(name)
+            
 
         # 응답으로는 프레임 데이터가 아닌 성공 상태를 반환합니다.
         return 'Success'
