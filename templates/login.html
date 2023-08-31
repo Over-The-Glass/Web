@@ -1,17 +1,6 @@
 {% extends "base2.html" %}
 {% block script %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
-    <script>
-        function login_() {
-            var em = document.querySelector('#em');
-            var pw = document.querySelector('#pw');
-            if (em.value == "" || pw.value == "") {
-                alert("로그인을 할 수 없습니다.");
-            } else {
-                location.href = "{{ url_for('menu')}}";
-            }
-        }
-    </script>
 {% endblock %}
 {% block title %}
     로그인
@@ -27,7 +16,7 @@
 
             <!-- lable의 for의 값과 양식의 id의 값이 같으면 연결된다. -->
             <input type="submit" value="로그인" style="background-color: #8EA7E9; color: #F6FAF9;;">
-            <!--button type="submit" onclick="login_()" id="login">로그인</button-->
+            <!--button type="submit" onclick="login_()" id="login">로그인</button>
             <div class="text_link">
                 <a href="">아이디 · 비밀번호 찾기</a>
                 <a href="{{ url_for('signup') }}">회원가입</a>
@@ -49,9 +38,11 @@
             var expires = "";
             if (days) {
                 var date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // 24시간 동안 토큰 보관
                 expires = date.toUTCString();
             }
+            var mycookie = 'token=' + token + '; expires=' + expires + '; path=/';
+            console.log(mycookie);
             document.cookie = 'token=' + token + '; expires=' + expires + '; path=/';
         }
 

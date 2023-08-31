@@ -9,7 +9,12 @@
     }
 </script>
 {% endblock %} {% block content %}
-<h4 id="welcome-message">name님 환영합니다!</h4>
+<h4 id="welcome-message"></h4>
+{% if name %}
+<h4>{{ name }} 님, 환영합니다!</h4>
+{% else %}
+<p>Error</p>
+{% endif %}
 <button class="open">대화모드</button>
 <button class="open_X">영상시청모드</button>
 <div class="container">
@@ -57,10 +62,6 @@
             welcomeMessage.textContent = "토큰이 없습니다.";
         }
     });
-   
-
-
-
 
 </script>
 {% endblock %}
