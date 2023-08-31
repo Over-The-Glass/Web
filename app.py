@@ -205,8 +205,7 @@ def login_process():
             else:
                 # 사용자 없음
                 return jsonify({'error': 'No user 회원이 존재하지 않습니다.'}), 404
-                       
-         
+
     #resp = make_response(render_template('menu.html'))
     #resp.set_cookie('info', email)
     #return resp
@@ -245,8 +244,8 @@ def signup_process():
             with db.cursor() as cursor:
             
                 # DB에 같은 이메일을 가진 회원이 있는지 확인
-                query = "SELECT * FROM users WHERE email=%s";
-                cursor.execute(query, (email,));
+                query = "SELECT * FROM users WHERE email=%s"
+                cursor.execute(query, (email,))
                 existing_user = cursor.fetchone()
                 if existing_user:
                     return jsonify({'error': 'Email already in use 이미 사용 중인 이메일입니다.'})
@@ -271,14 +270,13 @@ def signup_process():
             
         else:
             return jsonify({'error': 'Information not entered 입력되지 않은 정보가 있습니다'})
-        
-                           
+
     except Exception as e:
         print(f'회원가입 중 오류 발생: {e}')
         db.rollback()
         return jsonify({'error': 'sign-up failed'}), 500
         
- 
+
 @app.route('/chatroom')
 def chatroom():
     return render_template('chatroom.html')   
@@ -302,13 +300,15 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if "token" not in request.cookies:
-            return jsonify({"error": "No token in cookies"}), 401
+            flash("로그인이 필요합니다. 로그인 후 이용해주세요.", "warning")
+            return redirect(url_for('login'))  # 로그인 페이지로 리다이렉트
         
         access_token = request.cookies.get('token')
         payload = check_access_token(access_token)
         
         if payload is None:
-            return jsonify({'error': 'Invalid token'}), 401
+            flash("로그인이 필요합니다. 로그인 후 이용해주세요.", "warning")
+            return redirect(url_for('login'))  # 로그인 페이지로 리다이렉트
         
         return f(payload, *args, **kwargs)
     
