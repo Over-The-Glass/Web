@@ -227,17 +227,19 @@ def check_access_token(access_token):
 
 # decorator 함수
 def login_required(f):
+    @wraps(f)
     def decorated_function(*args, **kwagrs):
-        #if "Authorization" not in request.headers:
         if "token" not in request.cookies:
             return jsonify({"error": "No token in cookies"}),401
+        
         # 요청 토큰 정보 받아오기
         access_token = request.cookies.get('token') 
-        print("access_token", access_token)
+        #print("access_token", access_token)
+        
         if access_token is not None:
             # 토큰이 존재하면, 토큰 확인하고 payload 가져오기
             payload = check_access_token(access_token)
-            print("payload", payload)
+            #print("payload", payload)
             if payload is None:
                 return jsonify({'error': 'Payload is None.'}), 401
         else:
@@ -316,21 +318,33 @@ def signup_process():
         
  
 @app.route('/chatroom')
-def chatroom():
-    return render_template('chatroom.html')   
+@login_required # 로그인이 필요한 엔드포인트에는 데코레이터 추가
+def chatroom(payload):
+    if payload:
+        print("menu(payload), @login_required",payload)
+        name = payload.get('name')
+        print("menu(payload), @login_required",name)
+        return render_template('chatroom.html', name=name)
+    else:
+        return "Error", 401
+    #return render_template('chatroom.html')   
 
 @app.route('/menu')
 @login_required # 로그인이 필요한 엔드포인트에는 데코레이터 추가
 def menu(payload):
     if payload:
-        print("menu(payload), @login_required",payload)
+        #print("menu(payload), @login_required",payload)
         name = payload.get('name')
-        print("menu(payload), @login_required",name)
+        #print("menu(payload), @login_required",name)
         return render_template('menu.html', name=name)
     else:
         return "Error", 401
+ 
+
     
-"""
+""" 
+else:
+    return "Error", 401
 def menu():
     return render_template('menu.html')
 """
