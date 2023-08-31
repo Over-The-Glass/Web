@@ -5,7 +5,7 @@ import numpy as np
 import os
 import pymysql
 from collections import deque
-from flask import Flask, render_template, Response, jsonify, request, flash, session
+from flask import Flask, make_response, redirect, render_template, Response, jsonify, request, flash, session, url_for
 from flask_socketio import SocketIO, join_room, leave_room, emit
 import hashlib
 from datetime import datetime, timedelta
@@ -211,37 +211,6 @@ def login_process():
     #resp.set_cookie('info', email)
     #return resp
 
-# token을 decode하여 반환, 실패 시 payload = None
-def check_access_token(access_token):
-    try:
-        payload = jwt.decode(access_token, app.config['JWT_SECRET_KEY'] ,'HS256')
-        expiration_time = datetime.fromtimestamp(payload['exp'])
-        # 토큰 만료된 경우
-        if expiration_time < datetime.utcnow():
-            payload = None
-            
-    except jwt.InvalidTokenError:
-        payload=None
-    
-    return payload
-
-# decorator 함수
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if "token" not in request.cookies:
-            return jsonify({"error": "No token in cookies"}), 401
-        
-        access_token = request.cookies.get('token')
-        payload = check_access_token(access_token)
-        
-        if payload is None:
-            return jsonify({'error': 'Invalid token'}), 401
-        
-        return f(payload, *args, **kwargs)
-    
-    return decorated_function
-
 @app.route('/signup', methods=['GET'])
 def signup():
     return render_template('signup.html')
@@ -314,6 +283,37 @@ def signup_process():
 def chatroom():
     return render_template('chatroom.html')   
 
+# token을 decode하여 반환, 실패 시 payload = None
+def check_access_token(access_token):
+    try:
+        payload = jwt.decode(access_token, app.config['JWT_SECRET_KEY'] ,'HS256')
+        expiration_time = datetime.fromtimestamp(payload['exp'])
+        # 토큰 만료된 경우
+        if expiration_time < datetime.utcnow():
+            payload = None
+            
+    except jwt.InvalidTokenError:
+        payload=None
+    
+    return payload
+
+# decorator 함수
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "token" not in request.cookies:
+            return jsonify({"error": "No token in cookies"}), 401
+        
+        access_token = request.cookies.get('token')
+        payload = check_access_token(access_token)
+        
+        if payload is None:
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        return f(payload, *args, **kwargs)
+    
+    return decorated_function
+
 @app.route('/menu')
 @login_required
 def menu(payload):
@@ -323,15 +323,15 @@ def menu(payload):
     else:
         return "Error", 401
 
-    
-"""
-def menu():
-    return render_template('menu.html')
-"""
-@app.route('/logout')
+@app.route('/logout', methods=['GET'])
 def logout():
-    #session.pop('email', None)
-    return render_template('main.html')
+    # 로그아웃: 토큰 만료 등의 작업 수행
+    # 예를 들어, 토큰을 만료시키거나 세션을 무효화할 수 있습니다.
+    
+    # 로그아웃 후, 클라이언트에게 로그인 페이지로 이동하는 응답을 보냅니다.
+    response = make_response(redirect(url_for('main')))  # 로그인 페이지로 리다이렉트
+    response.delete_cookie('token')  # 토큰을 쿠키에서 제거
+    return response
 
 @app.route('/record')
 def record():
