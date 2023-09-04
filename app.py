@@ -363,8 +363,15 @@ def process_speech():
 @app.route('/camera', methods=['POST'])
 def camera():
     if request.method == 'POST':
-        # 요청에서 카메라 프레임 데이터를 가져옵니다.
-        frame_data = np.frombuffer(request.data, dtype=np.uint8)
+        global is_processing
+        
+        # 프레임 데이터를 처리하고 처리된 프레임을 JPEG 형식으로 얻습니다.
+        if is_processing == True :
+            print("already processing")
+        else :
+            print("start processing")
+            # 요청에서 카메라 프레임 데이터를 가져옵니다.
+            frame_data = np.frombuffer(request.data, dtype=np.uint8)
 
         # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
         print('Received camera frame:', len(frame_data), 'bytes')
