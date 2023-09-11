@@ -4,15 +4,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js"></script>
 <script src="{{ url_for('static', filename='libraries/p5.speech.js') }}"></script>
 <script src="{{ url_for('static', filename='sketch.js') }}"></script>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" /> {% endblock %} {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}"> {% endblock %} {% block content %}
 <div class="chatroom_container" id="chatroom_container"></div>
-
 <div id="output">
     <p id="outputText">who said what</p>
 </div>
-<span class="material-symbols-outlined" style="font-size: 150px">sms</span><br><br>
-<button id="conversation_room_close" onclick="exit_chatroom()">대화방 나가기</button>
+<button id="close" onclick="exit_chatroom()">대화방 종료</button>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
 <script>
@@ -26,7 +23,7 @@
             username,
             room_id
         });
-        location.href = "{{ url_for('main')}}";
+        location.href = "{{ url_for('menu')}}";
     }
 
     socket.emit('join', {
@@ -41,18 +38,32 @@
         const users = data.users
         const userElements = users.map(user => `<div class="user">${user}</div>`).join('');
         chatroomContainer.innerHTML =
-            `<div class="room_code" style="font-size: x-large; font-weight: bold;">대화방 코드 [${room_id}]</div>
-            <hr/>
+            `<div class="room_code">대화방 코드 [${room_id}]</div>
                 <div class="users_container">${userElements}</div>`;
     });
 
-    // beforeunload 이벤트 핸들러 추가
-    window.addEventListener('beforeunload', (e) => {
-        e.preventDefault();
-        e.returnValue = ''; // 빈 문자열을 할당하여 알림 표시
-
-        // 대화 종료 버튼을 누르지 않고 페이지를 벗어나려고 할 때 알림 표시
-        alert('대화를 종료하려면 대화 종료 버튼을 누르세요.');
+    socket.on('send_data', (data) => {
+        const speakerName = data.speaker;
+        const position = data.position;
+        var jsonData = {
+            flag: "in conversation mode",
+            change: "speaker position",
+            speaker: speakerName,
+            position: position
+        };
+        Unity.call(JSON.stringify(jsonData));
+        debugLog.innerHTML = `sending data: ${JSON.stringify(jsonData)}`
     });
+
+    // beforeunload 이벤트 핸들러 추가 (페이지 종료 시 실행)
+    window.addEventListener('beforeunload', (e) => {
+                // 대화방 종료 버튼을 누르지 않았을 경우
+                if (flag === "in conversation mode") {
+                    e.preventDefault();
+                    e.returnValue = ''; // 빈 문자열을 할당하여 알림 표시
+
+                    // 대화 종료 버튼을 누르지 않고 페이지를 벗어나려고 할 때 알림 표시
+                    alert('대화를 종료하려면 대화 종료 버튼을 누르세요.');
+                });
 </script>
 {% endblock %}

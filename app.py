@@ -5,7 +5,7 @@ import numpy as np
 import os
 import pymysql
 from collections import deque
-from flask import Flask, render_template, Response, jsonify, request, flash, session
+from flask import Flask, make_response, redirect, render_template, Response, jsonify, request, flash, session, url_for
 from flask_socketio import SocketIO, join_room, leave_room, emit
 import hashlib
 from datetime import datetime, timedelta
@@ -18,7 +18,7 @@ app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='0000', db='userdb')
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
 
@@ -205,47 +205,10 @@ def login_process():
             else:
                 # 사용자 없음
                 return jsonify({'error': 'No user 회원이 존재하지 않습니다.'}), 404
-                       
-         
+
     #resp = make_response(render_template('menu.html'))
     #resp.set_cookie('info', email)
     #return resp
-
-# token을 decode하여 반환, 실패 시 payload = None
-def check_access_token(access_token):
-    try:
-        payload = jwt.decode(access_token, app.config['JWT_SECRET_KEY'] ,'HS256')
-        expiration_time = datetime.fromtimestamp(payload['exp'])
-        # 토큰 만료된 경우
-        if expiration_time < datetime.utcnow():
-            payload = None
-            
-    except jwt.InvalidTokenError:
-        payload=None
-    
-    return payload
-
-# decorator 함수
-def login_required(f):
-    def decorated_function(*args, **kwagrs):
-        #if "Authorization" not in request.headers:
-        if "token" not in request.cookies:
-            return jsonify({"error": "No token in cookies"}),401
-        # 요청 토큰 정보 받아오기
-        access_token = request.cookies.get('token') 
-        print("access_token", access_token)
-        if access_token is not None:
-            # 토큰이 존재하면, 토큰 확인하고 payload 가져오기
-            payload = check_access_token(access_token)
-            print("payload", payload)
-            if payload is None:
-                return jsonify({'error': 'Payload is None.'}), 401
-        else:
-            return jsonify({'error': 'No Token.'}), 401
-        
-        return f(payload,*args, **kwagrs)
-    
-    return decorated_function
 
 @app.route('/signup', methods=['GET'])
 def signup():
@@ -281,12 +244,12 @@ def signup_process():
             with db.cursor() as cursor:
             
                 # DB에 같은 이메일을 가진 회원이 있는지 확인
-                query = "SELECT * FROM users WHERE email=%s";
-                cursor.execute(query, (email,));
+                query = "SELECT * FROM users WHERE email=%s"
+                cursor.execute(query, (email,))
                 existing_user = cursor.fetchone()
                 if existing_user:
                     return jsonify({'error': 'Email already in use 이미 사용 중인 이메일입니다.'})
-                 
+                
                 # 비밀번호 일치 확인
                 if pwd1 != pwd2:
                     return jsonify({'error': 'The password does not match 비밀번호가 일치하지 않습니다.'}), 400
@@ -307,41 +270,35 @@ def signup_process():
             
         else:
             return jsonify({'error': 'Information not entered 입력되지 않은 정보가 있습니다'})
-        
-                           
+
     except Exception as e:
         print(f'회원가입 중 오류 발생: {e}')
         db.rollback()
         return jsonify({'error': 'sign-up failed'}), 500
         
- 
+
 @app.route('/chatroom')
 def chatroom():
     return render_template('chatroom.html')   
 
-@app.route('/video_mode')
-def video_mode():
-    return render_template('video_mode.html')   
-
 @app.route('/menu')
-@login_required # 로그인이 필요한 엔드포인트에는 데코레이터 추가
+@login_required
 def menu(payload):
     if payload:
-        print("menu(payload), @login_required",payload)
         name = payload.get('name')
-        print("menu(payload), @login_required",name)
         return render_template('menu.html', name=name)
     else:
         return "Error", 401
-    
-"""
-def menu():
-    return render_template('menu.html')
-"""
-@app.route('/logout')
+
+@app.route('/logout', methods=['GET'])
 def logout():
-    #session.pop('email', None)
-    return render_template('main.html')
+    # 로그아웃: 토큰 만료 등의 작업 수행
+    # 예를 들어, 토큰을 만료시키거나 세션을 무효화할 수 있습니다.
+    
+    # 로그아웃 후, 클라이언트에게 로그인 페이지로 이동하는 응답을 보냅니다.
+    response = make_response(redirect(url_for('main')))  # 로그인 페이지로 리다이렉트
+    response.delete_cookie('token')  # 토큰을 쿠키에서 제거
+    return response
 
 @app.route('/record')
 def record():
@@ -369,10 +326,9 @@ def camera():
 
         # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
         print('Received camera frame:', len(frame_data), 'bytes')
-
-        # 프레임 데이터를 처리하고 처리된 프레임을 JPEG 형식으로 얻습니다.
         process_frame(frame_data)
         print(name)
+            
 
         # 응답으로는 프레임 데이터가 아닌 성공 상태를 반환합니다.
         return 'Success'
