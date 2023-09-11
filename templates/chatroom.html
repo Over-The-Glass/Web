@@ -31,13 +31,13 @@
             var jsonData = {
                 flag: "started conversation mode"
             };
-            // Unity.call(JSON.stringify(jsonData));
+            Unity.call(JSON.stringify(jsonData));
             conversationBtn.innerHTML = "대화모드 종료";
         } else if (conversationBtn.innerHTML == "대화모드 종료") {
             var jsonData = {
                 flag: "ended conversation mode"
             };
-            // Unity.call(JSON.stringify(jsonData));
+            Unity.call(JSON.stringify(jsonData));
             debugLog.innerHTML =
                 `<p>"ended conversation mode"</p>`
             socket.emit('leave', {
