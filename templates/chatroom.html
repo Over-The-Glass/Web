@@ -52,10 +52,19 @@
         }
     }
 
+
     socket.emit('join', {
         username,
         room_id
     });
+
+    function exit_chatroom() {
+        socket.emit('leave', {
+            username,
+            room_id
+        });
+        location.href = "{{ url_for('menu')}}";
+    }
 
     socket.on('update_users', (data) => {
         room_id = data.room_id;
