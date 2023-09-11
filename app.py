@@ -286,6 +286,14 @@ def chatroom():
 def video_mode():
     return render_template('video_mode.html')   
 
+@app.route('/nonmember_menu')
+def nonmember_menu():
+    return render_template('nonmember_menu.html') 
+
+@app.route('/nonmember_settings')
+def nonmember_settings():
+    return render_template('nonmember_settings.html')   
+
 # token을 decode하여 반환, 실패 시 payload = None
 def check_access_token(access_token):
     try:
