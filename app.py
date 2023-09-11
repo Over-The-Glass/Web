@@ -154,7 +154,7 @@ def process_frame(data):
 
 @app.route('/')
 def main():
-    return render_template('main.html')
+    return render_template('new_main.html')
 
 @app.route('/login', methods=['GET'])
 def login():
