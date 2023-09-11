@@ -10,8 +10,7 @@
     <p id="outputText">who said what</p>
 </div>
 <span class="material-symbols-outlined" style="font-size: 150px">sms</span><br><br>
-<button id="conversation_room_start" onclick="conversation_button()">대화모드 시작</button>
-<button id="conversation_room_close" onclick="exit_chatroom()">대화방 나가기</button>
+<button id="conversation_button">대화모드 시작</button>
 <div class="debug_log" id="debug_log">
     <p>debug log</p>
 </div>
@@ -57,14 +56,6 @@
         username,
         room_id
     });
-
-    function exit_chatroom() {
-        socket.emit('leave', {
-            username,
-            room_id
-        });
-        location.href = "{{ url_for('menu')}}";
-    }
 
     socket.on('update_users', (data) => {
         room_id = data.room_id;
