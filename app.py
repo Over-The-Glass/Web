@@ -18,7 +18,8 @@ app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='0000', db='userdb')
+db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+# db = pymysql.connect(host='localhost', user='gugu', password='0717', db='userdb')
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
 
@@ -155,8 +156,7 @@ def process_frame(data):
 
 @app.route('/')
 def main():
-    return render_template('main.html')
-    # return render_template('photo.html')
+    return render_template('new_main.html')
 
 @app.route('/login', methods=['GET'])
 def login():
@@ -282,6 +282,10 @@ def signup_process():
 @app.route('/chatroom')
 def chatroom():
     return render_template('chatroom.html')   
+
+@app.route('/video_mode')
+def video_mode():
+    return render_template('video_mode.html')   
 
 # token을 decode하여 반환, 실패 시 payload = None
 def check_access_token(access_token):

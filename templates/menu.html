@@ -7,6 +7,14 @@
     function joinChatRoom() {
         location.href = "{{ url_for('join_chatroom') }}";
     }
+
+    function conversationHistory() {
+        location.href = "{{ url_for('record')}}";
+    }
+
+    function goToVideoMode() {
+        location.href = "{{ url_for('video_mode')}}";
+    }
 </script>
 {% endblock %} {% block content %}
 <h4 id="welcome-message"></h4>
@@ -15,15 +23,20 @@
 {% else %}
 <p>Error</p>
 {% endif %}
-<button class="open">대화모드</button>
-<button class="open_X">영상시청모드</button>
-<div class="container">
+<!-- <button class="open">대화모드</button><br><br> -->
+<button id="coversation_mode" onclick="goToConversationMode()">대화모드</button><br><br>
+<button id="conversation_history" onclick="conversationHistory()">대화기록</button><br><br>
+<button id="video_mode" onclick="goToVideoMode()">영상시청모드</button>
+
+<!-- <div class="container">
     <div class="modal">
         <button id="close" onclick="goToConversationMode()">방 생성</button>
         <button id="input_c" onclick="joinChatRoom()">코드 입력</button>
+        <button id="input_c" onclick="conversationHistory()">대화 기록</button>
         <button class="close">Close</button>
     </div>
-</div>
+</div> -->
+
 <script>
     const openButton = document.querySelector('.open');
     const container = document.querySelector('.container');
@@ -40,9 +53,9 @@
     });
 
     function getCookie(name) {
-        console.log("name",name)
+        console.log("name", name)
         var value = "; " + document.cookie;
-        console.log("value",value)
+        console.log("value", value)
         var parts = value.split("; " + name + "=");
         if (parts.length === 2) {
             return parts.pop().split(";").shift();
@@ -53,7 +66,7 @@
         var welcomeMessage = document.getElementById("welcome-message");
 
         var token = getCookie("token"); // 토큰 값 가져오기
-        console.log("token",token)
+        console.log("token", token)
         if (token) {
             // 토큰이 존재할 경우 처리할 내용
             // 예: 토큰을 해독하여 사용자 정보 가져오기 등
@@ -62,6 +75,5 @@
             welcomeMessage.textContent = "토큰이 없습니다.";
         }
     });
-
 </script>
 {% endblock %}

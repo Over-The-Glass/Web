@@ -25,3 +25,24 @@
     padding: 5px;
     margin: 5px;
 }
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48
+}
+
+#conversation_room_start,
+#conversation_room_close {
+    background-color: white;
+    border: 2px solid var(--button);
+    border-radius: 25px;
+    color: var(--button);
+    margin-bottom: 30px;
+}
+
+#conversation_room_start:hover,
+#conversation_room_close:hover {
+    background-color: var(--button);
+    border-radius: 25px;
+    color: white;
+    margin-bottom: 30px;
+}

@@ -8,11 +8,12 @@
     --text: #f0f4f5;
     --button: #E5E0FF;
     --button-hover: #c9c2eb;
-    --gray-border : #AFA9A9;
+    --gray-border: #AFA9A9;
     --default-gray: #D9D9D9;
 }
 
-html, body {
+html,
+body {
     text-align: center;
     font-family: 'Source Sans Pro';
     height: 100%;
@@ -36,7 +37,7 @@ button {
     width: 160px;
     height: 55px;
     flex-shrink: 0;
-    margin: 8px;
+    margin-bottom: 8px;
 }
 
 button:hover {
