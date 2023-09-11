@@ -18,7 +18,7 @@ app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='0000', db='userdb')
+db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
 
@@ -280,7 +280,7 @@ def signup_process():
         
  
 @app.route('/chatroom')
-def chatroom(payload):
+def chatroom():
     return render_template('chatroom.html')   
 
 # token을 decode하여 반환, 실패 시 payload = None
@@ -432,6 +432,10 @@ def on_leave(data):
         if not rooms[room_id]:
             del rooms[room_id]
 
+
+@app.route('/auth/kakao/callback')
+def kakao_login():
+    return render_template('menu.html')
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=80, debug=True)
