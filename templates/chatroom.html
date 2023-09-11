@@ -48,6 +48,16 @@
         }
     }
 
+
+
+    function exit_chatroom() {
+        socket.emit('leave', {
+            username,
+            room_id
+        });
+        location.href = "{{ url_for('menu')}}";
+    }
+
     socket.on('update_users', (data) => {
         console.log('update_users');
         room_id = data.room_id;
