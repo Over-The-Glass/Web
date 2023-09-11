@@ -10,7 +10,8 @@
     <p id="outputText">who said what</p>
 </div>
 <span class="material-symbols-outlined" style="font-size: 150px">sms</span><br><br>
-<button id="conversation_button" onclick="conversation_button()">대화모드 시작</button>
+<button id="conversation_room_start" onclick="conversation_button()">대화모드 시작</button>
+<button id="conversation_room_close" onclick="exit_chatroom()">대화방 나가기</button>
 <div class="debug_log" id="debug_log">
     <p>debug log</p>
 </div>
@@ -24,20 +25,23 @@
     const conversationBtn = document.getElementById('conversation_button');
     const debugLog = document.getElementById('debug_log');
     socket = io();
-    socket.emit('join', { username, room_id });
+    socket.emit('join', {
+        username,
+        room_id
+    });
 
     function conversation_button() {
         if (conversationBtn.innerHTML == "대화모드 시작") {
             var jsonData = {
                 flag: "started conversation mode"
             };
-            // Unity.call(JSON.stringify(jsonData));
+            Unity.call(JSON.stringify(jsonData));
             conversationBtn.innerHTML = "대화모드 종료";
         } else if (conversationBtn.innerHTML == "대화모드 종료") {
             var jsonData = {
                 flag: "ended conversation mode"
             };
-            // Unity.call(JSON.stringify(jsonData));
+            Unity.call(JSON.stringify(jsonData));
             debugLog.innerHTML =
                 `<p>"ended conversation mode"</p>`
             socket.emit('leave', {
@@ -49,6 +53,10 @@
     }
 
 
+    socket.emit('join', {
+        username,
+        room_id
+    });
 
     function exit_chatroom() {
         socket.emit('leave', {
@@ -59,7 +67,6 @@
     }
 
     socket.on('update_users', (data) => {
-        console.log('update_users');
         room_id = data.room_id;
         const users = data.users;
         const userElements = users.map(user => `<div class="user">${user}</div>`).join('');
@@ -69,20 +76,20 @@
             <div class="users_container">${userElements}</div>`;
     });
 
-        socket.on('send_data', (data) => {
-            debugLog.innerHTML = `sending data: ${data.speaker}, ${data.positionX}, ${data.positionY}`;
-            const speakerName = data.speaker;
-            const positionX = data.positionX;
-            const positionY = data.positionY;
-            var jsonData = {
-                flag: "in conversation mode",
-                change: "speaker position",
-                speaker: speakerName,
-                positionX: positionX,
-                positionY: positionY
-            };
-            Unity.call(JSON.stringify(jsonData));
-        });
+    socket.on('send_data', (data) => {
+        debugLog.innerHTML = `sending data: ${data.speaker}, ${data.positionX}, ${data.positionY}`;
+        const speakerName = data.speaker;
+        const positionX = data.positionX;
+        const positionY = data.positionY;
+        var jsonData = {
+            flag: "in conversation mode",
+            change: "speaker position",
+            speaker: speakerName,
+            positionX: positionX,
+            positionY: positionY
+        };
+        Unity.call(JSON.stringify(jsonData));
+    });
 
     // beforeunload 이벤트 핸들러 추가 (페이지 종료 시 실행)
     window.addEventListener('beforeunload', (e) => {
