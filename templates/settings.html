@@ -27,11 +27,11 @@
 <div class="container_3">
     <div class="modal_3">
         <div><a href="{{ url_for('settings') }}" id="close_3">x</a></div>
-        <div id="a_color">
-            <input type="checkbox" id="use" style="margin-bottom: 15px">자막 사용
+        <div id="use_subtitles">
+            <input type="checkbox">자막 사용
         </div>
-        <div id="a_color">
-            <input type="checkbox" id="use_x" style="margin-bottom: 15px">자막 미사용
+        <div id="subtitles_not_used">
+            <input type="checkbox">자막 미사용
         </div><br>
         <button id="save">저장</button>
     </div>
@@ -41,31 +41,30 @@
 <div class="container_4">
     <div class="modal_4">
         <div><a href="{{ url_for('settings') }}" id="close_4">x</a></div>
-        <div id="a_color">
-            <input type="checkbox" id="s_size" style="margin-bottom: 15px">작은 글씨
+        <div id="font_smallsize">
+            <input type="checkbox">작은 글씨
         </div>
-        <div id="a_color">
-            <input type="checkbox" id="m_size" style="margin-bottom: 15px">중간 글씨
+        <div id="font_mediumsize">
+            <input type="checkbox">중간 글씨
         </div>
-        <div id="a_color">
-            <input type="checkbox" id="b_size" style="margin-bottom: 15px">큰 글씨
+        <div id="font_bigsize">
+            <input type="checkbox">큰 글씨
         </div>
         <button id="save">저장</button>
     </div>
 </div>
 
 <div class="container_5">
-
     <div class="modal_5">
         <div><a href="{{ url_for('settings') }}" id="close_5">x</a></div>
-        <div id="a_color">
-            <input type="checkbox" style="margin-bottom: 15px">흰색 & 검은색
+        <div id="color_whiteandblack">
+            <input type="checkbox">흰색 & 검은색
         </div>
-        <div id="a_color">
-            <input type="checkbox" style="margin-bottom: 15px">핑크 & 검은색
+        <div id="color_pinkandblack">
+            <input type="checkbox">핑크 & 검은색
         </div>
-        <div id="a_color">
-            <input type="checkbox" style="margin-bottom: 15px">파란색 & 회색
+        <div id="color_yellowandblue">
+            <input type="checkbox">노란색 & 파란색
         </div>
         <button id="save">저장</button>
     </div>
@@ -75,21 +74,18 @@
 
     <div class="modal_6">
         <nav class="nav_bar_2">
-            <a id="urg">▶ 탈퇴</a>
+            <!-- <a id="urg ">▶ 탈퇴</a> -->
             <p id="urg_2">OVER THE GLASS에서 탈퇴하시겠습니까?</p>
         </nav>
         <div>
             <a href=""><input type="button" value="취소" id="unregister_1"></a>
             <a href=""><input type="button" value="확인" id="unregister_1"></a>
-            <!-- <button href="#" id="unregister_1">취소</button>
-            <button href="#" id="unregister_1">확인</button> -->
+            <!-- <button href="# " id="unregister_1 ">취소</button>
+            <button href="# " id="unregister_1 ">확인</button> -->
         </div>
     </div>
-
-
-
 </div>
-</div>
+
 
 <script>
     const openButton = document.querySelector('#my_page');

@@ -18,7 +18,7 @@ app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
 
@@ -154,7 +154,7 @@ def process_frame(data):
 
 @app.route('/')
 def main():
-    return render_template('main.html')
+    return render_template('new_main.html')
 
 @app.route('/login', methods=['GET'])
 def login():
@@ -318,6 +318,10 @@ def signup_process():
 @app.route('/chatroom')
 def chatroom():
     return render_template('chatroom.html')   
+
+@app.route('/video_mode')
+def video_mode():
+    return render_template('video_mode.html')   
 
 @app.route('/menu')
 @login_required # 로그인이 필요한 엔드포인트에는 데코레이터 추가

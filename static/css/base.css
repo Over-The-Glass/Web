@@ -6,7 +6,7 @@
     --dark-white: #eaeaea;
     --white-background: #F6FAF9;
     --text: #f0f4f5;
-    --button: #E5E0FF;
+    --button: #7286D3;
     --button-hover: #c9c2eb;
     --gray-border: #AFA9A9;
     --default-gray: #D9D9D9;
@@ -37,11 +37,11 @@ button {
     width: 160px;
     height: 55px;
     flex-shrink: 0;
-    margin: 8px;
+    margin-bottom: 8px;
 }
 
 button:hover {
-    background-color: var(--button-hover);
+    background-color: var(--dark-main);
 }
 
 .flex_container {
@@ -71,6 +71,17 @@ button:hover {
 
 .title_logo img {
     height: 40px;
+}
+
+.main_page_title_logo {
+    padding-top: 220px;
+    padding-bottom: 120px;
+    display: flex;
+    width: 319.6px;
+    height: 47px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 .side_bar {
@@ -186,8 +197,42 @@ button:hover {
     row-gap: 15px;
     padding: 30px;
     border: 1px solid lightgray;
+    background-color: #ffffff;
     border-radius: 7px;
     box-shadow: 3px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+#new_main_page_background {
+    background-color: #7286D3;
+}
+
+#login_button {
+    background-color: none;
+    border: 2px solid white;
+    border-radius: 10px;
+    color: white;
+    margin-bottom: 30px;
+}
+
+#login_button:hover {
+    background-color: var(--dark-main);
+}
+
+#signup_button {
+    border-radius: 10px;
+    background-color: white;
+    color: #7286D3;
+}
+
+#signup_button:hover {
+    background-color: var(--dark-white);
+}
+
+#login_and_signup_button {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 #input_d {
@@ -212,6 +257,28 @@ button:hover {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
     font-size: medium;
     white-space: nowrap;
+    text-align: center;
+}
+
+#coversation_mode,
+#conversation_history,
+#video_mode {
+    border: none;
+    color: #000000;
+    background: #F6FAF9;
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 25px;
+    width: 296px;
+    height: 104px;
+    flex-shrink: 0;
+    margin-bottom: 8px;
+}
+
+#coversation_mode:hover,
+#conversation_history:hover,
+#video_mode:hover {
+    background: #f4fffb;
 }
 
 .material-symbols-outlined {
@@ -226,7 +293,7 @@ button:hover {
     background-color: var(--default-gray);
 }
 
-.clog_container {
+.coversation_history_container {
     display: flex;
     flex-direction: column;
     align-items: center;
