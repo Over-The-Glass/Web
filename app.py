@@ -281,6 +281,39 @@ def signup_process():
 def chatroom():
     return render_template('chatroom.html')   
 
+# token을 decode하여 반환, 실패 시 payload = None
+def check_access_token(access_token):
+    try:
+        payload = jwt.decode(access_token, app.config['JWT_SECRET_KEY'] ,'HS256')
+        expiration_time = datetime.fromtimestamp(payload['exp'])
+        # 토큰 만료된 경우
+        if expiration_time < datetime.utcnow():
+            payload = None
+            
+    except jwt.InvalidTokenError:
+        payload=None
+    
+    return payload
+
+# decorator 함수
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "token" not in request.cookies:
+            flash("로그인이 필요합니다. 로그인 후 이용해주세요.", "warning")
+            return redirect(url_for('login'))  # 로그인 페이지로 리다이렉트
+        
+        access_token = request.cookies.get('token')
+        payload = check_access_token(access_token)
+        
+        if payload is None:
+            flash("로그인이 필요합니다. 로그인 후 이용해주세요.", "warning")
+            return redirect(url_for('login'))  # 로그인 페이지로 리다이렉트
+        
+        return f(payload, *args, **kwargs)
+    
+    return decorated_function
+
 @app.route('/menu')
 @login_required
 def menu(payload):

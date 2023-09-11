@@ -9,33 +9,54 @@
 <div id="output">
     <p id="outputText">who said what</p>
 </div>
-<button id="close" onclick="exit_chatroom()">대화방 종료</button>
+<button id="conversation_button" onclick="conversation_button()">대화모드 시작</button>
+<div class="debug_log" id="debug_log">
+    <p>debug log</p>
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
 <script>
     let username = "subtitle_user";
     let room_id = -1;
     let socket;
+    const chatroomContainer = document.getElementById('chatroom_container');
+    const conversationBtn = document.getElementById('conversation_button');
+    const debugLog = document.getElementById('debug_log');
     socket = io();
+
+    function conversation_button() {
+        if (conversationBtn.innerHTML == "대화모드 시작") {
+            var jsonData = {
+                flag: "started conversation mode"
+            };
+            Unity.call(JSON.stringify(jsonData));
+            conversationBtn.innerHTML = "대화모드 종료";
+        } else if (conversationBtn.innerHTML == "대화모드 종료") {
+            var jsonData = {
+                flag: "ended conversation mode"
+            };
+            Unity.call(JSON.stringify(jsonData));
+            debugLog.innerHTML =
+                `<p>"ended conversation mode"</p>`
+            socket.emit('leave', {
+                username,
+                room_id
+            });
+            location.href = "{{ url_for('menu')}}";
+        }
+    }
 
     function exit_chatroom() {
         socket.emit('leave', {
             username,
             room_id
         });
-        location.href = "{{ url_for('menu')}}";
+        location.href = "{{ url_for('main')}}";
     }
 
-    socket.emit('join', {
-        username,
-        room_id
-    });
-
-    const chatroomContainer = document.getElementById('chatroom_container');
-
     socket.on('update_users', (data) => {
-        room_id = data.room_id
-        const users = data.users
+        room_id = data.room_id;
+        const users = data.users;
         const userElements = users.map(user => `<div class="user">${user}</div>`).join('');
         chatroomContainer.innerHTML =
             `<div class="room_code">대화방 코드 [${room_id}]</div>
@@ -57,13 +78,14 @@
 
     // beforeunload 이벤트 핸들러 추가 (페이지 종료 시 실행)
     window.addEventListener('beforeunload', (e) => {
-                // 대화방 종료 버튼을 누르지 않았을 경우
-                if (flag === "in conversation mode") {
-                    e.preventDefault();
-                    e.returnValue = ''; // 빈 문자열을 할당하여 알림 표시
+        // 대화방 종료 버튼을 누르지 않았을 경우
+        if (flag === "in conversation mode") {
+            e.preventDefault();
+            e.returnValue = ''; // 빈 문자열을 할당하여 알림 표시
 
-                    // 대화 종료 버튼을 누르지 않고 페이지를 벗어나려고 할 때 알림 표시
-                    alert('대화를 종료하려면 대화 종료 버튼을 누르세요.');
-                });
+            // 대화 종료 버튼을 누르지 않고 페이지를 벗어나려고 할 때 알림 표시 - 안됨..
+            alert('대화를 종료하려면 대화 종료 버튼을 누르세요.');
+        }
+    });
 </script>
 {% endblock %}
