@@ -33,6 +33,7 @@ function gotSpeech() {
         };
         Unity.call(JSON.stringify(jsonData));
     }
+    console.log("________________");
     console.log(speechRec.resultJSON.results);
     // console.log(speechRec.resultJSON.results[0][0]);
     // console.log(speechRec.resultJSON.results[0].isFinal);
