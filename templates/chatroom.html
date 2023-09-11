@@ -10,8 +10,7 @@
     <p id="outputText">who said what</p>
 </div>
 <span class="material-symbols-outlined" style="font-size: 150px">sms</span><br><br>
-<button id="conversation_room_start" onclick="conversation_button()">대화모드 시작</button>
-<button id="conversation_room_close" onclick="exit_chatroom()">대화방 나가기</button>
+<button id="conversation_button" onclick="conversation_button()">대화모드 시작</button>
 <div class="debug_log" id="debug_log">
     <p>debug log</p>
 </div>
@@ -25,19 +24,20 @@
     const conversationBtn = document.getElementById('conversation_button');
     const debugLog = document.getElementById('debug_log');
     socket = io();
+    socket.emit('join', { username, room_id });
 
     function conversation_button() {
         if (conversationBtn.innerHTML == "대화모드 시작") {
             var jsonData = {
                 flag: "started conversation mode"
             };
-            Unity.call(JSON.stringify(jsonData));
+            // Unity.call(JSON.stringify(jsonData));
             conversationBtn.innerHTML = "대화모드 종료";
         } else if (conversationBtn.innerHTML == "대화모드 종료") {
             var jsonData = {
                 flag: "ended conversation mode"
             };
-            Unity.call(JSON.stringify(jsonData));
+            // Unity.call(JSON.stringify(jsonData));
             debugLog.innerHTML =
                 `<p>"ended conversation mode"</p>`
             socket.emit('leave', {
@@ -48,15 +48,8 @@
         }
     }
 
-    function exit_chatroom() {
-        socket.emit('leave', {
-            username,
-            room_id
-        });
-        location.href = "{{ url_for('menu')}}";
-    }
-
     socket.on('update_users', (data) => {
+        console.log('update_users');
         room_id = data.room_id;
         const users = data.users;
         const userElements = users.map(user => `<div class="user">${user}</div>`).join('');
