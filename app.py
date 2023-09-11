@@ -40,6 +40,7 @@ predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
 
 client_speech = ""
+global is_processing
 is_processing = False
 
 class LipMovement:
@@ -82,7 +83,7 @@ number_of_known_people = len(known_names)
 movements = [LipMovement(known_names[i]) for i in range(len(known_names))]
 
 check_frame = True
-latest_speaker_position = ()
+latest_speaker_position = []
 difference = [0 for _ in range(len(known_names))]
 name = "?"
 
@@ -105,7 +106,6 @@ def process_frame(data):
 
     if not faces:  # 얼굴이 감지되지 않을 경우
         name = "Unknown"  # Unknown으로 표시
-
 
     for face in faces:
         landmarks = predictor(gray, face)
@@ -139,7 +139,7 @@ def process_frame(data):
                 has_speaker = True
 
             if np.argmax(difference) == min_distance_index:
-                latest_speaker_position = (face.left(), face.bottom() + 60)
+                latest_speaker_position = [face.left(), face.bottom() + 60]
         
         else:  # 매치율이 0.5보다 작을 경우
             name = "Unknown"  # Unknown으로 표시
@@ -147,7 +147,8 @@ def process_frame(data):
     if not has_speaker and client_speech:
         if not faces:  # 얼굴이 감지되지 않을 경우
             name = "Unknown"
-
+    
+    print("end processing")
     is_processing = False
 
     return
@@ -155,6 +156,7 @@ def process_frame(data):
 @app.route('/')
 def main():
     return render_template('main.html')
+    # return render_template('photo.html')
 
 @app.route('/login', methods=['GET'])
 def login():
@@ -354,14 +356,34 @@ def process_speech():
 @app.route('/camera', methods=['POST'])
 def camera():
     if request.method == 'POST':
+
         # 요청에서 카메라 프레임 데이터를 가져옵니다.
         frame_data = np.frombuffer(request.data, dtype=np.uint8)
 
         # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
         print('Received camera frame:', len(frame_data), 'bytes')
         process_frame(frame_data)
-        print(name)
-            
+        print(name, latest_speaker_position)
+
+        print("emit send_data")
+        socketio.emit(
+            'send_data',
+            {
+                'speaker': name,
+                'positionX': latest_speaker_position[0],
+                'positionY': latest_speaker_position[1]
+            }
+        )
+        
+            # if latest_speaker_position:
+            #     print("emit send_data")
+            #     socketio.emit(
+            #         'send_data',
+            #         {
+            #             'speaker': name,
+            #             'position': latest_speaker_position
+            #         }
+            #     )
 
         # 응답으로는 프레임 데이터가 아닌 성공 상태를 반환합니다.
         return 'Success'

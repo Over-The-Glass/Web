@@ -60,16 +60,18 @@
         });
 
         socket.on('send_data', (data) => {
+            debugLog.innerHTML = `sending data: ${data.speaker}, ${data.positionX}, ${data.positionY}`;
             const speakerName = data.speaker;
-            const position = data.position;
+            const positionX = data.positionX;
+            const positionY = data.positionY;
             var jsonData = {
                 flag: "in conversation mode",
                 change: "speaker position",
                 speaker: speakerName,
-                position: position
+                positionX: positionX,
+                positionY: positionY
             };
             Unity.call(JSON.stringify(jsonData));
-            debugLog.innerHTML = `sending data: ${JSON.stringify(jsonData)}`
         });
 
         // beforeunload 이벤트 핸들러 추가 (페이지 종료 시 실행)
