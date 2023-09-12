@@ -1,18 +1,19 @@
-{% extends "base.html" %} {% block content %}
-<div class="flex_container">
-    <div class="rect_content"></div>
-</div>
-<div>
-    <button onclick="login()">로그인</button>
-    <button onclick="signup()">회원가입</button>
-</div>
-<script>
-    function login() {
-        location.href = "{{ url_for('login')}}";
-    }
+{% extends "base.html" %}
+{% block content %}
+    <div class="flex_container">
+        <div class="rect_content"></div>
+    </div>
+    <div>
+        <button onclick="login()">로그인</button>
+        <button onclick="signup()">회원가입</button>
+    </div>
+    <script>
+        function login() {
+            location.href = "{{ url_for('login')}}";
+        }
 
-    function signup() {
-        location.href = "{{ url_for('signup')}}";
-    }
-</script>
+        function signup() {
+            location.href = "{{ url_for('signup')}}";
+        }
+    </script>
 {% endblock %}
