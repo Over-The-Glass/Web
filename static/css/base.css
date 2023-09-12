@@ -104,13 +104,13 @@ button:hover {
     transition: 0.3s;
 }
 
-.side_bar .list_container a {
+.side_bar .side_bar_list_container a {
     padding: 10px 33px;
     text-align: left;
     border-bottom: 0.5px solid var(--gray-border);
 }
 
-.side_bar .list_container a:hover {
+.side_bar .side_bar_list_container a:hover {
     color: var(--main);
 }
 
@@ -150,7 +150,7 @@ button:hover {
     padding: 10px 10px;
 }
 
-.closebtn {
+.side_bar_closebtn {
     padding: 10px 13px;
     font-size: 30px;
 }

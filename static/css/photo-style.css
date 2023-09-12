@@ -1,0 +1,50 @@
+#captureInput {
+    display: none;
+}
+
+#captureButton {
+    border: 2px solid #7286D3;
+    border-radius: 25px;
+    width: 250px;
+    height: 50px;
+    display: block;
+    margin: 0 auto;
+    /* 수평 가운데 정렬 */
+    text-align: center;
+    color: #7286D3;
+    background-color: #ffffff;
+}
+
+#captureButton:hover {
+    font-weight: bold;
+}
+
+#previewImage {
+    display: none;
+    text-align: center;
+    margin: 20px auto;
+    /* 수평 가운데 정렬 및 상단 여백 추가 */
+    max-width: 100%;
+    /* 이미지가 너무 크면 화면을 넘어가지 않도록 */
+}
+
+#uploadButton {
+    display: none;
+    text-align: center;
+    margin: auto;
+    color: white;
+    /* 수평 가운데 정렬 및 상단 여백 추가 */
+}
+
+#uploadButton:hover {
+    font-weight: bold;
+}
+
+body {
+    display: block;
+    margin: 0px;
+}
+
+.nav_bar {
+    height: 52px;
+}

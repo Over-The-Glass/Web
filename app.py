@@ -293,7 +293,11 @@ def nonmember_menu():
 
 @app.route('/nonmember_settings')
 def nonmember_settings():
-    return render_template('nonmember_settings.html')   
+    return render_template('nonmember_settings.html')
+
+@app.route('/photo')
+def photo():
+    return render_template('photo.html')  
 
 # token을 decode하여 반환, 실패 시 payload = None
 def check_access_token(access_token):

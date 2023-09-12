@@ -1,30 +1,18 @@
 {% extends "base3.html" %} {% block head %}
 <script>
-    function goToConversationMode() {
-        location.href = "{{ url_for('chatroom') }}";
-    }
-
-    function joinChatRoom() {
-        location.href = "{{ url_for('join_chatroom') }}";
-    }
-
-    function conversationHistory() {
-        location.href = "{{ url_for('record')}}";
-    }
-
-    function goToVideoMode() {
-        location.href = "{{ url_for('video_mode')}}";
-    }
-
     function nonmember_goToConversationMode() {
         location.href = "{{ url_for('join_chatroom')}}";
+    }
+
+    function take_a_photo() {
+        location.href = "{{ url_for('photo')}}";
     }
 </script>
 {% endblock %} {% block content %}
 
 <!-- <button class="open">대화모드</button><br><br> -->
 <button id="coversation_mode" onclick="nonmember_goToConversationMode()" style="margin-top: 20px;">대화모드</button><br><br>
-
+<button id="coversation_mode" onclick="take_a_photo()" style="margin-top: 20px;">사진 선택</button><br><br>
 
 <script>
     const openButton = document.querySelector('.open');

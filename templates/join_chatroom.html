@@ -65,7 +65,8 @@
             } = data;
             const userElements = users.map(user => `<div class="user">${user}</div>`).join('');
             chatroomContainer.innerHTML =
-                `<div class="room_code">대화방 코드 [${room_id}]</div>
+                `<div class="room_code" style="font-size: x-large; font-weight: bold;">대화방 코드 [${room_id}]</div>
+                <hr>
                     <div class="users_container">${userElements}</div>`;
         });
     }

@@ -49,47 +49,6 @@ a {
     font-size: small;
 }
 
-#input_d {
-    border: none;
-    color: #000000;
-    background-color: var(--button);
-    cursor: pointer;
-    font-size: 1rem;
-    border-radius: 25px;
-    width: 160px;
-    height: 55px;
-    flex-shrink: 0;
-    margin: 8px;
-}
-
-.menu a {
-    color: #fff;
-}
-
-.submenu>li {
-    margin-top: 25px;
-    line-height: 50px;
-    background-color: #7286D3;
-    margin-left: 50px;
-}
-
-.submenu {
-    height: 0;
-    /*ul의 높이를 안보이게 처리*/
-    overflow: hidden;
-}
-
-.menu>li:hover {
-    background-color: #7286D3;
-    transition-duration: 0.5s;
-}
-
-.menu>li:hover .submenu {
-    height: 450px;
-    /*서브메뉴 li한개의 높이 50*5*/
-    transition-duration: 1s;
-}
-
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -183,3 +142,46 @@ button:hover {
     right: 15px;
     font-size: 20px;
 }
+
+
+/* #input_d {
+    border: none;
+    color: #000000;
+    background-color: var(--button);
+    cursor: pointer;
+    font-size: 1rem;
+    border-radius: 25px;
+    width: 160px;
+    height: 55px;
+    flex-shrink: 0;
+    margin: 8px;
+} */
+
+
+/* .menu a {
+    color: #fff;
+} */
+
+
+/* .submenu>li {
+    margin-top: 25px;
+    line-height: 50px;
+    background-color: #7286D3;
+    margin-left: 50px;
+}
+
+.submenu {
+    height: 0;
+    overflow: hidden;
+} */
+
+
+/* .menu>li:hover {
+    background-color: #7286D3;
+    transition-duration: 0.5s;
+}
+
+.menu>li:hover .submenu {
+    height: 450px;
+    transition-duration: 1s;
+} */
