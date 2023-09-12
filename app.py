@@ -18,8 +18,7 @@ app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='0000', db='userdb')
-# db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
 
@@ -175,7 +174,7 @@ def login_process():
         
     with db.cursor() as cursor:
         # DB에 입력된 이메일과 일치하는 사용자 정보 조회
-            query = "SELECT * FROM Users WHERE email = %s"
+            query = "SELECT * FROM user WHERE email = %s"
             cursor.execute(query, (email,))
             user = cursor.fetchone()
 
@@ -185,17 +184,20 @@ def login_process():
                 
                 # DB에 저장된 해시된 패스워드는 user의 3번 인덱스에 위치
                 stored_hashed_pw = user[3] 
-                # 0 user_pkey 1 name 2 email 3 pwd 4 subtitle 
+                # 0 user_pkey 1 name 2 email 3 pwd_hash 4 subtitle 
+                user_pkey = user[0]
                 name = user[1]
                 email = user[2]
-                print("app.py 189 name", name)
-                print("app.py 190 email", email)
+                subtitle = user[4]
+                print("app.py line 192",user_pkey, name, email, subtitle)
                     
                 # DB에서 조회한 해시된 패스워드와 입력된 패스워드를 비교
                 if pw_hash == stored_hashed_pw:
                     payload = {
+                        'user_pkey': user_pkey,
                         'name': name,
                         'email': email,
+                        'subtitle': subtitle,
                         'exp': datetime.utcnow() + timedelta(seconds=60*60*24) # 만료 24 hour
                     }
                     # 토큰 생성 
@@ -240,13 +242,12 @@ def signup_process():
             print(result)
         """
         
-        
         # 모든 정보가 입력되었는지 확인 
         if (username and email and pwd1 and pwd2):            
             with db.cursor() as cursor:
             
                 # DB에 같은 이메일을 가진 회원이 있는지 확인
-                query = "SELECT * FROM users WHERE email=%s"
+                query = "SELECT * FROM user WHERE email=%s"
                 cursor.execute(query, (email,))
                 existing_user = cursor.fetchone()
                 if existing_user:
@@ -265,7 +266,7 @@ def signup_process():
                 pw_hash = hashlib.sha256(pwd1.encode('utf-8')).hexdigest()
                 
                 # 새로운 사용자 추가
-                insert_query = "INSERT INTO users (name, email, pwd, subtitle) VALUES (%s, %s, %s, %s)"
+                insert_query = "INSERT INTO user (name, email, pwd_hash, subtitle) VALUES (%s, %s, %s, %s)"
                 cursor.execute(insert_query, (username, email, pw_hash, sub_value))
                 db.commit()
                 return jsonify({'message': 'Sign-up successful 회원가입이 완료되었습니다.'}), 200
@@ -277,7 +278,7 @@ def signup_process():
         print(f'회원가입 중 오류 발생: {e}')
         db.rollback()
         return jsonify({'error': 'sign-up failed'}), 500
-
+        
 
 @app.route('/chatroom')
 def chatroom():
@@ -312,28 +313,35 @@ def check_access_token(access_token):
 # decorator 함수
 def login_required(f):
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def decorated_function(*args, **kwagrs):
         if "token" not in request.cookies:
-            flash("로그인이 필요합니다. 로그인 후 이용해주세요.", "warning")
-            return redirect(url_for('login'))  # 로그인 페이지로 리다이렉트
+            return jsonify({"error": "No token in cookies"}), 401
         
-        access_token = request.cookies.get('token')
+        # 요청 토큰 정보 받아오기
+        access_token = request.cookies.get('token') 
         payload = check_access_token(access_token)
+        #print("access_token", access_token)
         
         if payload is None:
-            flash("로그인이 필요합니다. 로그인 후 이용해주세요.", "warning")
-            return redirect(url_for('login'))  # 로그인 페이지로 리다이렉트
+            return jsonify({'error': 'Invalid token'}), 401
         
-        return f(payload, *args, **kwargs)
-    
+        return f(payload,*args, **kwagrs)
+   
     return decorated_function
 
 @app.route('/menu')
 @login_required
 def menu(payload):
     if payload:
+        print("menu(payload), @login_required",payload)
         name = payload.get('name')
-        return render_template('menu.html', name=name)
+        subtitle = payload.get('subtitle')
+        if subtitle == 0:
+            print("menu(payload), @login_required",name, subtitle)
+            return render_template('photo.html', name=name)
+        else:
+            print("menu(payload), @login_required",name, subtitle)
+            return render_template('menu.html', name=name)
     else:
         return "Error", 401
 
@@ -368,7 +376,6 @@ def process_speech():
 @app.route('/camera', methods=['POST'])
 def camera():
     if request.method == 'POST':
-
         # 요청에서 카메라 프레임 데이터를 가져옵니다.
         frame_data = np.frombuffer(request.data, dtype=np.uint8)
 
@@ -449,7 +456,16 @@ def on_leave(data):
         # 방에 사용자가 더 이상 없으면 방을 삭제
         if not rooms[room_id]:
             del rooms[room_id]
+            
+            
+@app.route('/upload', methods=['POST'])
+def upload():
+    image = request.form.get('')
 
+
+@app.route('/auth/kakao/callback')
+def kakao_login():
+    return render_template('menu.html')
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=80, debug=True)
