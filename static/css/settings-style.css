@@ -1,7 +1,7 @@
-#my_page,
-#subtitles_ox,
-#subtitles_size,
-#subtitles_color {
+#modify_mypage_nickname,
+#modify_mypage_subtitles_ox,
+#modify_mypage_subtitles_size,
+#modify_mypage_subtitles_color {
     border-style: solid;
     border-width: 3px;
     border-color: #7286D3;
@@ -17,7 +17,7 @@
     margin-top: 20px;
 }
 
-#unregister {
+#modify_mypage_unregister {
     margin-top: 20px;
     background-color: white;
     border: none;
@@ -163,10 +163,10 @@
     color: #7286D3;
 }
 
-#my_page:hover,
-#subtitles_ox:hover,
-#subtitles_size:hover,
-#subtitles_color:hover {
+#modify_mypage_nickname:hover,
+#modify_mypage_subtitles_ox:hover,
+#modify_mypage_subtitles_size:hover,
+#modify_mypage_subtitles_color:hover {
     background-color: #7286D3;
     color: #ffffff;
 }
@@ -184,7 +184,7 @@
     background-color: #ffffff;
     border-radius: 50px;
     border: #ffffff;
-    width: 280px;
+    width: 250px;
     height: 50px;
 }
 
