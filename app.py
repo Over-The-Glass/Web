@@ -296,7 +296,11 @@ def nonmember_menu():
 
 @app.route('/nonmember_settings')
 def nonmember_settings():
-    return render_template('nonmember_settings.html')   
+    return render_template('nonmember_settings.html')
+
+@app.route('/photo')
+def photo():
+    return render_template('photo.html')  
 
 # token을 decode하여 반환, 실패 시 payload = None
 def check_access_token(access_token):
@@ -335,14 +339,14 @@ def login_required(f):
 @login_required
 def menu(payload):
     if payload:
-        print("menu(payload), @login_required",payload)
+        #print("menu(payload), @login_required",payload)
         name = payload.get('name')
         subtitle = payload.get('subtitle')
         if subtitle == 0:
             print("menu(payload), @login_required",name, subtitle)
             return render_template('nonmember_menu.html', name=name)
         else:
-            print("menu(payload), @login_required",name, subtitle)
+            #print("menu(payload), @login_required",name, subtitle)
             return render_template('menu.html', name=name)
     else:
         return "Error", 401
@@ -431,15 +435,20 @@ def on_join(data):
     if room_id == -1:
         room_id = generateRoomID()
         rooms[room_id] = set()
-    
-    print(room_id)
+        
+        print(room_id)
 
-    # 사용자를 해당 방에 추가하고 방에 조인
-    rooms[room_id].add(username)
-    join_room(room_id)
+        # 사용자를 해당 방에 추가하고 방에 조인
+        rooms[room_id].add(username)
+        join_room(room_id)
 
-    # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
-    emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
+        # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
+        emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
+    elif room_id not in rooms:
+        print("wrong room code")
+        emit('error', {'message': '존재하지 않는 대화방 코드입니다.'})
+        
+ 
 
 
 @socketio.on('leave')
