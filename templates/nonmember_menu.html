@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block head %}
+{% extends "base3.html" %} {% block head %}
 <script>
     function goToConversationMode() {
         location.href = "{{ url_for('chatroom') }}";
@@ -15,27 +15,16 @@
     function goToVideoMode() {
         location.href = "{{ url_for('video_mode')}}";
     }
+
+    function nonmember_goToConversationMode() {
+        location.href = "{{ url_for('join_chatroom')}}";
+    }
 </script>
 {% endblock %} {% block content %}
-<h4 id="welcome-message"></h4>
-{% if name %}
-<h4>{{ name }} 님, 환영합니다!</h4>
-{% else %}
-<p>Error name을 가져오지 못했습니다</p>
-{% endif %}
-<!-- <button class="open">대화모드</button><br><br> -->
-<button id="coversation_mode" onclick="goToConversationMode()">대화모드</button><br><br>
-<button id="conversation_history" onclick="conversationHistory()">대화기록</button><br><br>
-<button id="video_mode" onclick="goToVideoMode()">영상시청모드</button>
 
-<!-- <div class="container">
-    <div class="modal">
-        <button id="close" onclick="goToConversationMode()">방 생성</button>
-        <button id="input_c" onclick="joinChatRoom()">코드 입력</button>
-        <button id="input_c" onclick="conversationHistory()">대화 기록</button>
-        <button class="close">Close</button>
-    </div>
-</div> -->
+<!-- <button class="open">대화모드</button><br><br> -->
+<button id="coversation_mode" onclick="nonmember_goToConversationMode()" style="margin-top: 20px;">대화모드</button><br><br>
+
 
 <script>
     const openButton = document.querySelector('.open');

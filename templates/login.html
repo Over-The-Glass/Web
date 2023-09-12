@@ -1,73 +1,60 @@
-{% extends "base2.html" %}
-{% block script %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
-{% endblock %}
-{% block title %}
-    로그인
-{% endblock %}
-{% block content %}
-    <div class="wrapper" action="/login">
-        <form method="post" id="login-form">
-            <input type="email" name="userEmail" id="em" placeholder="이메일 주소 입력">
-            <input type="password" name="userPassword1" id="pw" placeholder="비밀번호">
-            <label>
+{% extends "base2.html" %} {% block script %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}"> {% endblock %} {% block title %} 로그인 {% endblock %} {% block content %}
+<div class="wrapper" action="/login">
+    <form method="post" id="login-form">
+        <input type="email" name="userEmail" id="em" placeholder="이메일 주소 입력">
+        <input type="password" name="userPassword1" id="pw" placeholder="비밀번호">
+        <label style="margin-right: 220px;">
                 <input type="checkbox" name="autoLogin" value="autoLogin" style="margin-bottom: 15px">자동로그인
-            </label>
+        </label>
 
-            <!-- lable의 for의 값과 양식의 id의 값이 같으면 연결된다. -->
-            <input type="submit" value="로그인" style="background-color: #8EA7E9; color: #F6FAF9;;">
-            <!--button type="submit" onclick="login_()" id="login">로그인</button>
-            <div class="text_link">
-                <a href="">아이디 · 비밀번호 찾기</a>
-                <a href="{{ url_for('signup') }}">회원가입</a>
-            </div>
+        <!-- lable의 for의 값과 양식의 id의 값이 같으면 연결된다. -->
+        <!-- <input type="submit" value="로그인" style="background-color: #8EA7E9; color: #F6FAF9;;"> -->
+        <button type="submit" onclick="login_()" id="login">로그인</button>
+        <div class="text_link">
+            <a href="" style="font-size: smaller;">아이디 · 비밀번호 찾기</a>
+            <a href="{{ url_for('signup') }}" style="font-size: smaller;">회원가입</a>
+        </div>
 
-            <button type="submit">회원가입</button> | 소셜 계정으로 시작하기 -->
+        <!-- <button type="submit">회원가입</button> | 소셜 계정으로 시작하기 -->
 
-            <!--
-            <div class="social-login-wrapper">   
-                <a href="https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=fd5ca1e1afae7b7b2e752416fbcdf899&redirect_uri=http://localhost:80/auth/kakao/callback">
-                <button type="button" name="kakao"><img src="{{url_for('static', filename='src/img/kakao_login_small.png')}}" style="width:80px; height:40px;"></button>
-                </a>
-            </div>
-                <button type="button" name="google">
-                <img src="{{url_for('static', filename='src/img/google_logo.jpg')}}" style="width:50px; height:50px;">
-                </button 
-            -->
-        </form>
-    </div>
+        <!-- <div class="social-login-wrapper">
+                <button type="button" name="kakao"><img src="{{url_for('static', filename='src/img/kakao_logo.jpg')}}" style="width:50px; height:50px;"></button>
+                <button type="button" name="google"><img src="{{url_for('static', filename='src/img/google_logo.jpg')}}" style="width:50px; height:50px;"></button>
+            </div> -->
+    </form>
+</div>
 
 
-    <script>
-
-        function set_Cookies(token, days) {
-            var expires = "";
-            if (days) {
-                var date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // 24시간 동안 토큰 보관
-                expires = date.toUTCString();
-            }
-            var mycookie = 'token=' + token + '; expires=' + expires + '; path=/';
-            console.log(mycookie);
-            document.cookie = 'token=' + token + '; expires=' + expires + '; path=/';
+<script>
+    function set_Cookies(token, days) {
+        var expires = "";
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // 24시간 동안 토큰 보관
+            expires = date.toUTCString();
         }
+        var mycookie = 'token=' + token + '; expires=' + expires + '; path=/';
+        console.log(mycookie);
+        document.cookie = 'token=' + token + '; expires=' + expires + '; path=/';
+    }
 
-        function showAlert(message, redirectTo) {
-            alert(message);
-            if (redirectTo) {
-                window.location.href = redirectTo; // 지정된 페이지로 이동
-            }
+    function showAlert(message, redirectTo) {
+        alert(message);
+        if (redirectTo) {
+            window.location.href = redirectTo; // 지정된 페이지로 이동
         }
+    }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            var loginForm = document.getElementById("login-form");
-            
-            loginForm.addEventListener("submit", function(event) {
-                event.preventDefault(); // 폼 기본 동작 중단
-                
-                var formData = new FormData(loginForm);
-                
-                fetch("/login", {
+    document.addEventListener("DOMContentLoaded", function() {
+        var loginForm = document.getElementById("login-form");
+
+        loginForm.addEventListener("submit", function(event) {
+            event.preventDefault(); // 폼 기본 동작 중단
+
+            var formData = new FormData(loginForm);
+
+            fetch("/login", {
                     method: "POST",
                     body: formData
                 })
@@ -86,8 +73,7 @@
                         showAlert(errorMessage);
                     }
                 });
-            });
         });
-           
-    </script>
+    });
+</script>
 {% endblock %}

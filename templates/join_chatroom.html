@@ -1,76 +1,82 @@
-{% extends "base.html" %}
-{% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}">
-{% endblock %}
-{% block content %}
-    <div class="container">
-        <div class="modal">
-            <div class="wrapper">
-                <form id="form">
-                    <input type="text" id="username" placeholder="이름" required>
-                    <input type="text" id="room_id" placeholder="대화방 코드(네 자리 숫자)" required>
-                    <button type="submit" class="join">대화방 참여</button>
-                </form>
-            </div>
+{% extends "base3.html" %} {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}"> {% endblock %} {% block content %}
+<div class="container">
+    <div class="modal">
+        <div class="wrapper">
+            <form id="form">
+                <input type="text" id="username" placeholder="이름" required>
+                <input type="text" id="room_id" placeholder="대화방 코드(네 자리 숫자)" required>
+                <button type="submit" class="join">대화방 참여</button>
+            </form>
         </div>
     </div>
-    <div class="chatroom_container" id="chatroom_container">
-        <p>대화방 코드: </p>
-        <p>대화 참여자(0)</p>
-    </div>
-    <button onclick="exit_chatroom()" class="exit">대화 종료</button>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
-    <script>
-        const joinButton = document.querySelector('.join');
-        const container = document.querySelector('.container');
-        container.style.display = 'flex';
+</div>
+<div class="chatroom_container" id="chatroom_container">
+    <p>대화방 코드: </p>
+    <p>대화 참여자(0)</p>
+</div>
+<button onclick="exit_chatroom()" class="exit">대화 종료</button>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+<script>
+    const joinButton = document.querySelector('.join');
+    const container = document.querySelector('.container');
+    container.style.display = 'flex';
 
-        let socket; // socket 변수를 전역으로 선언
+    let socket; // socket 변수를 전역으로 선언
 
-        joinButton.addEventListener('click', (e) => {
-            e.preventDefault(); // 폼의 제출 동작을 막음
-            const username = document.getElementById('username').value;
-            const room_id = document.getElementById('room_id').value;
+    joinButton.addEventListener('click', (e) => {
+        e.preventDefault(); // 폼의 제출 동작을 막음
+        const username = document.getElementById('username').value;
+        const room_id = document.getElementById('room_id').value;
 
-            if (username.trim() === '' || room_id.trim() === '') {
-                // 이름과 대화방 코드를 모두 입력하지 않은 경우 처리
-                alert('이름과 대화방 코드를 모두 입력해주세요.');
-            } else {
-                // 이름과 대화방 코드를 모두 입력한 경우 container를 사라지게 처리
-                container.style.display = 'none';
-                socket = io(); // joinForm 함수 안에서 socket 변수를 초기화
-                joinForm(username, room_id); // 대화방 참여 함수 호출
-            }
+        if (username.trim() === '' || room_id.trim() === '') {
+            // 이름과 대화방 코드를 모두 입력하지 않은 경우 처리
+            alert('이름과 대화방 코드를 모두 입력해주세요.');
+        } else {
+            // 이름과 대화방 코드를 모두 입력한 경우 container를 사라지게 처리
+            container.style.display = 'none';
+            socket = io(); // joinForm 함수 안에서 socket 변수를 초기화
+            joinForm(username, room_id); // 대화방 참여 함수 호출
+        }
+    });
+
+    function exit_chatroom() {
+        const username = document.getElementById('username').value;
+        const room_id = document.getElementById('room_id').value;
+        socket.emit('leave', {
+            username,
+            room_id
+        });
+        location.href = "{{ url_for('main')}}";
+    }
+
+    function joinForm(username, room_id) {
+        socket.emit('join', {
+            username,
+            room_id
         });
 
-        function exit_chatroom() {
-            const username = document.getElementById('username').value;
-            const room_id = document.getElementById('room_id').value;
-            socket.emit('leave', { username, room_id });
-            location.href = "{{ url_for('menu')}}";
-        }
-
-        function joinForm(username, room_id) {
-            socket.emit('join', { username, room_id });
-
-            const chatroomContainer = document.getElementById('chatroom_container');
-            socket.on('update_users', (data) => {
-                const { room_id, users } = data;
-                const userElements = users.map(user => `<div class="user">${user}</div>`).join('');
-                chatroomContainer.innerHTML =
-                    `<div class="room_code">대화방 코드 [${room_id}]</div>
+        const chatroomContainer = document.getElementById('chatroom_container');
+        socket.on('update_users', (data) => {
+            const {
+                room_id,
+                users
+            } = data;
+            const userElements = users.map(user => `<div class="user">${user}</div>`).join('');
+            chatroomContainer.innerHTML =
+                `<div class="room_code">대화방 코드 [${room_id}]</div>
                     <div class="users_container">${userElements}</div>`;
-            });
-        }
-
-        // beforeunload 이벤트 핸들러 추가
-        window.addEventListener('beforeunload', (e) => {
-            e.preventDefault();
-            e.returnValue = ''; // 빈 문자열을 할당하여 알림 표시
-
-            // 대화 종료 버튼을 누르지 않고 페이지를 벗어나려고 할 때 알림 표시
-            alert('대화를 종료하려면 대화 종료 버튼을 누르세요.');
         });
-    </script>
+    }
+
+    // beforeunload 이벤트 핸들러 추가
+    window.addEventListener('beforeunload', (e) => {
+        e.preventDefault();
+        e.returnValue = ''; // 빈 문자열을 할당하여 알림 표시
+
+        // 대화 종료 버튼을 누르지 않고 페이지를 벗어나려고 할 때 알림 표시
+        alert('대화를 종료하려면 대화 종료 버튼을 누르세요.');
+    });
+</script>
 {% endblock %}

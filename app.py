@@ -40,6 +40,7 @@ predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
 
 client_speech = ""
+global is_processing
 is_processing = False
 
 class LipMovement:
@@ -82,7 +83,7 @@ number_of_known_people = len(known_names)
 movements = [LipMovement(known_names[i]) for i in range(len(known_names))]
 
 check_frame = True
-latest_speaker_position = ()
+latest_speaker_position = []
 difference = [0 for _ in range(len(known_names))]
 name = "?"
 
@@ -105,7 +106,6 @@ def process_frame(data):
 
     if not faces:  # 얼굴이 감지되지 않을 경우
         name = "Unknown"  # Unknown으로 표시
-
 
     for face in faces:
         landmarks = predictor(gray, face)
@@ -139,7 +139,7 @@ def process_frame(data):
                 has_speaker = True
 
             if np.argmax(difference) == min_distance_index:
-                latest_speaker_position = (face.left(), face.bottom() + 60)
+                latest_speaker_position = [face.left(), face.bottom() + 60]
         
         else:  # 매치율이 0.5보다 작을 경우
             name = "Unknown"  # Unknown으로 표시
@@ -147,14 +147,15 @@ def process_frame(data):
     if not has_speaker and client_speech:
         if not faces:  # 얼굴이 감지되지 않을 경우
             name = "Unknown"
-
+    
+    print("end processing")
     is_processing = False
 
     return
 
 @app.route('/')
 def main():
-    return render_template('main.html')
+    return render_template('new_main.html')
 
 @app.route('/login', methods=['GET'])
 def login():
@@ -173,7 +174,7 @@ def login_process():
         
     with db.cursor() as cursor:
         # DB에 입력된 이메일과 일치하는 사용자 정보 조회
-            query = "SELECT * FROM Users WHERE email = %s"
+            query = "SELECT * FROM user WHERE email = %s"
             cursor.execute(query, (email,))
             user = cursor.fetchone()
 
@@ -183,17 +184,20 @@ def login_process():
                 
                 # DB에 저장된 해시된 패스워드는 user의 3번 인덱스에 위치
                 stored_hashed_pw = user[3] 
-                # 0 user_pkey 1 name 2 email 3 pwd 4 subtitle 
+                # 0 user_pkey 1 name 2 email 3 pwd_hash 4 subtitle 
+                user_pkey = user[0]
                 name = user[1]
                 email = user[2]
-                print("app.py 189 name", name)
-                print("app.py 190 email", email)
+                subtitle = user[4]
+                print("app.py line 192",user_pkey, name, email, subtitle)
                     
                 # DB에서 조회한 해시된 패스워드와 입력된 패스워드를 비교
                 if pw_hash == stored_hashed_pw:
                     payload = {
+                        'user_pkey': user_pkey,
                         'name': name,
                         'email': email,
+                        'subtitle': subtitle,
                         'exp': datetime.utcnow() + timedelta(seconds=60*60*24) # 만료 24 hour
                     }
                     # 토큰 생성 
@@ -205,8 +209,7 @@ def login_process():
             else:
                 # 사용자 없음
                 return jsonify({'error': 'No user 회원이 존재하지 않습니다.'}), 404
-                       
-         
+
     #resp = make_response(render_template('menu.html'))
     #resp.set_cookie('info', email)
     #return resp
@@ -239,14 +242,13 @@ def signup_process():
             print(result)
         """
         
-        
         # 모든 정보가 입력되었는지 확인 
         if (username and email and pwd1 and pwd2):            
             with db.cursor() as cursor:
             
                 # DB에 같은 이메일을 가진 회원이 있는지 확인
-                query = "SELECT * FROM users WHERE email=%s";
-                cursor.execute(query, (email,));
+                query = "SELECT * FROM user WHERE email=%s"
+                cursor.execute(query, (email,))
                 existing_user = cursor.fetchone()
                 if existing_user:
                     return jsonify({'error': 'Email already in use 이미 사용 중인 이메일입니다.'})
@@ -264,24 +266,35 @@ def signup_process():
                 pw_hash = hashlib.sha256(pwd1.encode('utf-8')).hexdigest()
                 
                 # 새로운 사용자 추가
-                insert_query = "INSERT INTO users (name, email, pwd, subtitle) VALUES (%s, %s, %s, %s)"
+                insert_query = "INSERT INTO user (name, email, pwd_hash, subtitle) VALUES (%s, %s, %s, %s)"
                 cursor.execute(insert_query, (username, email, pw_hash, sub_value))
                 db.commit()
                 return jsonify({'message': 'Sign-up successful 회원가입이 완료되었습니다.'}), 200
             
         else:
             return jsonify({'error': 'Information not entered 입력되지 않은 정보가 있습니다'})
-        
-                           
+
     except Exception as e:
         print(f'회원가입 중 오류 발생: {e}')
         db.rollback()
         return jsonify({'error': 'sign-up failed'}), 500
         
- 
+
 @app.route('/chatroom')
 def chatroom():
     return render_template('chatroom.html')   
+
+@app.route('/video_mode')
+def video_mode():
+    return render_template('video_mode.html')   
+
+@app.route('/nonmember_menu')
+def nonmember_menu():
+    return render_template('nonmember_menu.html') 
+
+@app.route('/nonmember_settings')
+def nonmember_settings():
+    return render_template('nonmember_settings.html')   
 
 # token을 decode하여 반환, 실패 시 payload = None
 def check_access_token(access_token):
@@ -302,20 +315,15 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwagrs):
         if "token" not in request.cookies:
-            return jsonify({"error": "No token in cookies"}),401
+            return jsonify({"error": "No token in cookies"}), 401
         
         # 요청 토큰 정보 받아오기
         access_token = request.cookies.get('token') 
+        payload = check_access_token(access_token)
         #print("access_token", access_token)
         
-        if access_token is not None:
-            # 토큰이 존재하면, 토큰 확인하고 payload 가져오기
-            payload = check_access_token(access_token)
-            #print("payload", payload)
-            if payload is None:
-                return jsonify({'error': 'Payload is None.'}), 401
-        else:
-            return jsonify({'error': 'No Token.'}), 401
+        if payload is None:
+            return jsonify({'error': 'Invalid token'}), 401
         
         return f(payload,*args, **kwagrs)
    
@@ -327,8 +335,13 @@ def menu(payload):
     if payload:
         print("menu(payload), @login_required",payload)
         name = payload.get('name')
-        print("menu(payload), @login_required",name)
-        return render_template('menu.html', name=name)
+        subtitle = payload.get('subtitle')
+        if subtitle == 0:
+            print("menu(payload), @login_required",name, subtitle)
+            return render_template('photo.html', name=name)
+        else:
+            print("menu(payload), @login_required",name, subtitle)
+            return render_template('menu.html', name=name)
     else:
         return "Error", 401
 
@@ -363,21 +376,33 @@ def process_speech():
 @app.route('/camera', methods=['POST'])
 def camera():
     if request.method == 'POST':
-        global is_processing
-        
-        # 프레임 데이터를 처리하고 처리된 프레임을 JPEG 형식으로 얻습니다.
-        if is_processing == True :
-            print("already processing")
-        else :
-            print("start processing")
-            # 요청에서 카메라 프레임 데이터를 가져옵니다.
-            frame_data = np.frombuffer(request.data, dtype=np.uint8)
+        # 요청에서 카메라 프레임 데이터를 가져옵니다.
+        frame_data = np.frombuffer(request.data, dtype=np.uint8)
 
         # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
         print('Received camera frame:', len(frame_data), 'bytes')
         process_frame(frame_data)
-        print(name)
-            
+        print(name, latest_speaker_position)
+
+        print("emit send_data")
+        socketio.emit(
+            'send_data',
+            {
+                'speaker': name,
+                'positionX': latest_speaker_position[0],
+                'positionY': latest_speaker_position[1]
+            }
+        )
+        
+            # if latest_speaker_position:
+            #     print("emit send_data")
+            #     socketio.emit(
+            #         'send_data',
+            #         {
+            #             'speaker': name,
+            #             'position': latest_speaker_position
+            #         }
+            #     )
 
         # 응답으로는 프레임 데이터가 아닌 성공 상태를 반환합니다.
         return 'Success'
@@ -431,6 +456,11 @@ def on_leave(data):
         # 방에 사용자가 더 이상 없으면 방을 삭제
         if not rooms[room_id]:
             del rooms[room_id]
+            
+            
+@app.route('/upload', methods=['POST'])
+def upload():
+    image = request.form.get('')
 
 
 @app.route('/auth/kakao/callback')

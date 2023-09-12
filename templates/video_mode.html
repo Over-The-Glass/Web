@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js"></script>
+<script src="{{ url_for('static', filename='libraries/p5.speech.js') }}"></script>
+<script src="{{ url_for('static', filename='sketch.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /> {% endblock %} {% block content %}
+<br>
+<span class="material-symbols-outlined" style="font-size: 200px; text-align: center;">smart_display</span>
+<br>
+<button id="conversation_room_close" onclick="exit_chatroom()">영상시청모드 종료</button>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+<script>
+    function exit_chatroom() {
+        location.href = "{{ url_for('menu')}}";
+    }
+</script>
+{% endblock %}
