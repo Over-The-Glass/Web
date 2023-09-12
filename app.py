@@ -11,10 +11,15 @@ import hashlib
 from datetime import datetime, timedelta
 import jwt
 from functools import wraps
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key ="Over_the_Glass"
 app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
+# 이미지 업로드 폴더 설정 
+app.config['UPLOAD_FOLDER'] = './faces' 
+# 허용된 파일 확장자 설정
+app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png'}  
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
@@ -191,7 +196,7 @@ def login_process():
                 name = user[1]
                 email = user[2]
                 subtitle = user[4]
-                print("app.py line 192",user_pkey, name, email, subtitle)
+                #print("app.py line 192",user_pkey, name, email, subtitle)
                     
                 # DB에서 조회한 해시된 패스워드와 입력된 패스워드를 비교
                 if pw_hash == stored_hashed_pw:
@@ -446,9 +451,7 @@ def on_join(data):
         emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
     elif room_id not in rooms:
         print("wrong room code")
-        emit('error', {'message': '존재하지 않는 대화방 코드입니다.'})
-        
- 
+        emit('error', {'message': '존재하지 않는 대화방 코드입니다.'}) 
 
 
 @socketio.on('leave')
@@ -468,11 +471,32 @@ def on_leave(data):
         if not rooms[room_id]:
             del rooms[room_id]
             
-            
+ 
+# 이미지 확장자 확인 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+         
 @app.route('/upload', methods=['POST'])
-def upload():
-    image = request.form.get('')
-
+@login_required
+def upload(payload):
+    image = request.files['image']
+    # 이미지 업로드 확인 
+    if not image:
+        return jsonify({'error': 'No image uploaded'}), 400
+    # 이미지 확장자 확인 
+    if not allowed_file(image.filename):
+        return jsonify({'error': 'Invalid file type'}), 400
+    
+    filename = secure_filename(image.filename)
+    #print('app.py line 496', filename)
+    if payload:
+        filename = payload.get('name')+"."+filename
+        #print('app.py line 499', filename)
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'],filename)
+        image.save(image_path)
+        return jsonify({'message':'Image save successful 이미지 폴더 저장 성공'})
+    # 이미지 mysql에 저장 코드 추가 예정
+            
 
 @app.route('/auth/kakao/callback')
 def kakao_login():
