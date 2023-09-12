@@ -44,6 +44,11 @@ button:hover {
     background-color: var(--dark-main);
 }
 
+h4 {
+    margin: 0;
+    padding: 1.33em;
+}
+
 .flex_container {
     display: flex;
     justify-content: center;

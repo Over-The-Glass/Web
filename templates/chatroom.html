@@ -10,7 +10,7 @@
     <p id="outputText">who said what</p>
 </div>
 <span class="material-symbols-outlined" style="font-size: 150px">sms</span><br><br>
-<button id="conversation_button">대화모드 시작</button>
+<button id="conversation_button" onclick="conversation_button()">대화모드 시작</button>
 <div class="debug_log" id="debug_log">
     <p>debug log</p>
 </div>
@@ -50,7 +50,6 @@
             location.href = "{{ url_for('menu')}}";
         }
     }
-
 
     socket.emit('join', {
         username,

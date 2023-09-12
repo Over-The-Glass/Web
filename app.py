@@ -18,7 +18,9 @@ app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
+# db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
+
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
 
@@ -330,7 +332,7 @@ def login_required(f):
             return jsonify({'error': 'Invalid token'}), 401
         
         return f(payload,*args, **kwagrs)
-   
+
     return decorated_function
 
 @app.route('/menu')
@@ -341,8 +343,8 @@ def menu(payload):
         name = payload.get('name')
         subtitle = payload.get('subtitle')
         if subtitle == 0:
-            #print("menu(payload), @login_required",name, subtitle)
-            return render_template('nonmember_menu.html')
+            print("menu(payload), @login_required",name, subtitle)
+            return render_template('nonmember_menu.html', name=name)
         else:
             #print("menu(payload), @login_required",name, subtitle)
             return render_template('menu.html', name=name)
