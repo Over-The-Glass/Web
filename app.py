@@ -332,7 +332,7 @@ def login_required(f):
             return jsonify({'error': 'Invalid token'}), 401
         
         return f(payload,*args, **kwagrs)
-   
+
     return decorated_function
 
 @app.route('/menu')
