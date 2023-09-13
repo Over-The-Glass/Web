@@ -11,15 +11,21 @@ import hashlib
 from datetime import datetime, timedelta
 import jwt
 from functools import wraps
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key ="Over_the_Glass"
 app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
+# 이미지 업로드 폴더 설정 
+app.config['UPLOAD_FOLDER'] = './faces' 
+# 허용된 파일 확장자 설정
+app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png'}  
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-# db = pymysql.connect(host='localhost', user='root', password='0000', db='userdb')
-db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+# db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
+
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
 
@@ -41,8 +47,6 @@ predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
 
 client_speech = ""
-global is_processing
-is_processing = False
 
 class LipMovement:
     def __init__(self, name):
@@ -82,18 +86,13 @@ print(f"Loaded face data of {known_names}")
 number_of_known_people = len(known_names)
 
 movements = [LipMovement(known_names[i]) for i in range(len(known_names))]
-
-check_frame = True
 latest_speaker_position = []
 difference = [0 for _ in range(len(known_names))]
-name = "?"
+name = "Unknown"
 
 def process_frame(data):
-    global latest_speaker_position
-    global is_processing 
     global name
-
-    is_processing = True
+    global latest_speaker_position
 
     image = cv2.imdecode(data, cv2.IMREAD_COLOR)
 
@@ -150,7 +149,6 @@ def process_frame(data):
             name = "Unknown"
     
     print("end processing")
-    is_processing = False
 
     return
 
@@ -175,7 +173,7 @@ def login_process():
         
     with db.cursor() as cursor:
         # DB에 입력된 이메일과 일치하는 사용자 정보 조회
-            query = "SELECT * FROM Users WHERE email = %s"
+            query = "SELECT * FROM user WHERE email = %s"
             cursor.execute(query, (email,))
             user = cursor.fetchone()
 
@@ -185,17 +183,20 @@ def login_process():
                 
                 # DB에 저장된 해시된 패스워드는 user의 3번 인덱스에 위치
                 stored_hashed_pw = user[3] 
-                # 0 user_pkey 1 name 2 email 3 pwd 4 subtitle 
+                # 0 user_pkey 1 name 2 email 3 pwd_hash 4 subtitle 
+                user_pkey = user[0]
                 name = user[1]
                 email = user[2]
-                print("app.py 189 name", name)
-                print("app.py 190 email", email)
+                subtitle = user[4]
+                #print("app.py line 192",user_pkey, name, email, subtitle)
                     
                 # DB에서 조회한 해시된 패스워드와 입력된 패스워드를 비교
                 if pw_hash == stored_hashed_pw:
                     payload = {
+                        'user_pkey': user_pkey,
                         'name': name,
                         'email': email,
+                        'subtitle': subtitle,
                         'exp': datetime.utcnow() + timedelta(seconds=60*60*24) # 만료 24 hour
                     }
                     # 토큰 생성 
@@ -240,13 +241,12 @@ def signup_process():
             print(result)
         """
         
-        
         # 모든 정보가 입력되었는지 확인 
         if (username and email and pwd1 and pwd2):            
             with db.cursor() as cursor:
             
                 # DB에 같은 이메일을 가진 회원이 있는지 확인
-                query = "SELECT * FROM users WHERE email=%s"
+                query = "SELECT * FROM user WHERE email=%s"
                 cursor.execute(query, (email,))
                 existing_user = cursor.fetchone()
                 if existing_user:
@@ -265,7 +265,7 @@ def signup_process():
                 pw_hash = hashlib.sha256(pwd1.encode('utf-8')).hexdigest()
                 
                 # 새로운 사용자 추가
-                insert_query = "INSERT INTO users (name, email, pwd, subtitle) VALUES (%s, %s, %s, %s)"
+                insert_query = "INSERT INTO user (name, email, pwd_hash, subtitle) VALUES (%s, %s, %s, %s)"
                 cursor.execute(insert_query, (username, email, pw_hash, sub_value))
                 db.commit()
                 return jsonify({'message': 'Sign-up successful 회원가입이 완료되었습니다.'}), 200
@@ -316,28 +316,35 @@ def check_access_token(access_token):
 # decorator 함수
 def login_required(f):
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def decorated_function(*args, **kwagrs):
         if "token" not in request.cookies:
-            flash("로그인이 필요합니다. 로그인 후 이용해주세요.", "warning")
-            return redirect(url_for('login'))  # 로그인 페이지로 리다이렉트
+            return jsonify({"error": "No token in cookies"}), 401
         
-        access_token = request.cookies.get('token')
+        # 요청 토큰 정보 받아오기
+        access_token = request.cookies.get('token') 
         payload = check_access_token(access_token)
+        #print("access_token", access_token)
         
         if payload is None:
-            flash("로그인이 필요합니다. 로그인 후 이용해주세요.", "warning")
-            return redirect(url_for('login'))  # 로그인 페이지로 리다이렉트
+            return jsonify({'error': 'Invalid token'}), 401
         
-        return f(payload, *args, **kwargs)
-    
+        return f(payload,*args, **kwagrs)
+
     return decorated_function
 
 @app.route('/menu')
 @login_required
 def menu(payload):
     if payload:
+        #print("menu(payload), @login_required",payload)
         name = payload.get('name')
-        return render_template('menu.html', name=name)
+        subtitle = payload.get('subtitle')
+        if subtitle == 0:
+            print("menu(payload), @login_required",name, subtitle)
+            return render_template('nonmember_menu.html', name=name)
+        else:
+            #print("menu(payload), @login_required",name, subtitle)
+            return render_template('menu.html', name=name)
     else:
         return "Error", 401
 
@@ -372,7 +379,6 @@ def process_speech():
 @app.route('/camera', methods=['POST'])
 def camera():
     if request.method == 'POST':
-
         # 요청에서 카메라 프레임 데이터를 가져옵니다.
         frame_data = np.frombuffer(request.data, dtype=np.uint8)
 
@@ -390,16 +396,6 @@ def camera():
                 'positionY': latest_speaker_position[1]
             }
         )
-        
-            # if latest_speaker_position:
-            #     print("emit send_data")
-            #     socketio.emit(
-            #         'send_data',
-            #         {
-            #             'speaker': name,
-            #             'position': latest_speaker_position
-            #         }
-            #     )
 
         # 응답으로는 프레임 데이터가 아닌 성공 상태를 반환합니다.
         return 'Success'
@@ -426,15 +422,18 @@ def on_join(data):
     if room_id == -1:
         room_id = generateRoomID()
         rooms[room_id] = set()
-    
-    print(room_id)
+        
+        print(room_id)
 
-    # 사용자를 해당 방에 추가하고 방에 조인
-    rooms[room_id].add(username)
-    join_room(room_id)
+        # 사용자를 해당 방에 추가하고 방에 조인
+        rooms[room_id].add(username)
+        join_room(room_id)
 
-    # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
-    emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
+        # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
+        emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
+    elif room_id not in rooms:
+        print("wrong room code")
+        emit('error', {'message': '존재하지 않는 대화방 코드입니다.'}) 
 
 
 @socketio.on('leave')
@@ -453,7 +452,37 @@ def on_leave(data):
         # 방에 사용자가 더 이상 없으면 방을 삭제
         if not rooms[room_id]:
             del rooms[room_id]
+            
+ 
+# 이미지 확장자 확인 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+         
+@app.route('/upload', methods=['POST'])
+@login_required
+def upload(payload):
+    image = request.files['image']
+    # 이미지 업로드 확인 
+    if not image:
+        return jsonify({'error': 'No image uploaded'}), 400
+    # 이미지 확장자 확인 
+    if not allowed_file(image.filename):
+        return jsonify({'error': 'Invalid file type'}), 400
+    
+    filename = secure_filename(image.filename)
+    #print('app.py line 496', filename)
+    if payload:
+        filename = payload.get('name')+"."+filename
+        #print('app.py line 499', filename)
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'],filename)
+        image.save(image_path)
+        return jsonify({'message':'Image save successful 이미지 폴더 저장 성공'})
+    # 이미지 mysql에 저장 코드 추가 예정
+            
 
+@app.route('/auth/kakao/callback')
+def kakao_login():
+    return render_template('menu.html')
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=80, debug=True)
