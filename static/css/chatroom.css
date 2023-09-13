@@ -30,8 +30,7 @@
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48
 }
 
-#conversation_button,
-#conversation_room_close {
+#conversation_button {
     width: 296px;
     height: 48px;
     background-color: var(--button);
@@ -40,7 +39,6 @@
     color: black;
 }
 
-#conversation_button:hover,
-#conversation_room_close:hover {
+#conversation_button:hover {
     color: white;
 }
