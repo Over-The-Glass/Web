@@ -43,7 +43,7 @@
     border-color: #7286D3;
 }
 
-#message_2 {
+#status_message {
     background-color: #EAEAEAE5;
     border-right: none;
     border-left: none;
@@ -71,7 +71,8 @@
     margin: 8px;
 }
 
-#unregister_1 {
+#unregister_ox,
+#delete_ox {
     border: none;
     color: #7286D3;
     background-color: #FFFFFF;
@@ -84,7 +85,8 @@
     margin: 8px;
 }
 
-#unregister_1:hover {
+#unregister_ox:hover,
+#delete_ox:hover {
     font-weight: bold;
 }
 
@@ -154,11 +156,8 @@
     background-color: #002080;
 }
 
-#urg {
-    margin-right: 280px;
-}
-
-#urg_2 {
+#unregister,
+#history_delete {
     margin-top: 50px;
     color: #7286D3;
 }
@@ -169,15 +168,6 @@
 #modify_mypage_subtitles_color:hover {
     background-color: #7286D3;
     color: #ffffff;
-}
-
-#c_log_d {
-    margin-right: 200px;
-}
-
-#c_log_d_2 {
-    margin-top: 80px;
-    color: #000000;
 }
 
 #date {
@@ -293,4 +283,19 @@
     width: 350px;
     height: 30px;
     margin-bottom: 135px;
+} */
+
+
+/* #urg {
+    margin-right: 280px;
+} */
+
+
+/* #c_log_d {
+    margin-right: 200px;
+}
+
+#c_log_d_2 {
+    margin-top: 80px;
+    color: #000000;
 } */
