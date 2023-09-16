@@ -24,7 +24,9 @@ socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
 # db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
-db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+# db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
+
 
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
@@ -173,7 +175,7 @@ def login_process():
         
     with db.cursor() as cursor:
         # DB에 입력된 이메일과 일치하는 사용자 정보 조회
-            query = "SELECT * FROM Users WHERE email = %s"
+            query = "SELECT * FROM user WHERE email = %s"
             cursor.execute(query, (email,))
             user = cursor.fetchone()
 
@@ -418,7 +420,7 @@ def on_join(data):
     username = data['username']
     room_id = data['room_id']
 
-    # 방이 존재하지 않으면 새로 생성
+    # 자막사용자가 대화방을 생성할 경우
     if room_id == -1:
         room_id = generateRoomID()
         rooms[room_id] = set()
@@ -431,10 +433,16 @@ def on_join(data):
 
         # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
         emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
-    elif room_id not in rooms:
-        print("wrong room code")
-        emit('error', {'message': '존재하지 않는 대화방 코드입니다.'}) 
-
+    # 대화방 코드를 입력하여 참여할 경우
+    else:
+        # 존재하지 않는 대화방 코드 입력 시
+        if room_id not in rooms:
+            print("wrong room code")
+            emit('error', {'message': '존재하지 않는 대화방 코드입니다.'})
+        else:
+            join_room(room_id)
+            # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
+            emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
 
 @socketio.on('leave')
 def on_leave(data):
@@ -452,12 +460,11 @@ def on_leave(data):
         # 방에 사용자가 더 이상 없으면 방을 삭제
         if not rooms[room_id]:
             del rooms[room_id]
-            
- 
+
 # 이미지 확장자 확인 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
-         
+
 @app.route('/upload', methods=['POST'])
 @login_required
 def upload(payload):
@@ -478,7 +485,7 @@ def upload(payload):
         image.save(image_path)
         return jsonify({'message':'Image save successful 이미지 폴더 저장 성공'})
     # 이미지 mysql에 저장 코드 추가 예정
-            
+
 
 @app.route('/auth/kakao/callback')
 def kakao_login():
