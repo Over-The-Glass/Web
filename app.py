@@ -158,6 +158,39 @@ def process_frame(data):
 def main():
     return render_template('new_main.html')
 
+# token을 decode하여 반환, 실패 시 payload = None
+def check_access_token(access_token):
+    try:
+        payload = jwt.decode(access_token, app.config['JWT_SECRET_KEY'] ,'HS256')
+        expiration_time = datetime.fromtimestamp(payload['exp'])
+        # 토큰 만료된 경우
+        if expiration_time < datetime.utcnow():
+            payload = None
+            
+    except jwt.InvalidTokenError:
+        payload=None
+    
+    return payload
+
+# decorator 함수
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwagrs):
+        if "token" not in request.cookies:
+            return jsonify({"error": "No token in cookies"}), 401
+        
+        # 요청 토큰 정보 받아오기
+        access_token = request.cookies.get('token') 
+        payload = check_access_token(access_token)
+        #print("access_token", access_token)
+        
+        if payload is None:
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        return f(payload,*args, **kwagrs)
+
+    return decorated_function
+
 @app.route('/login', methods=['GET'])
 def login():
     return render_template('login.html')
@@ -184,7 +217,7 @@ def login_process():
                 pw_hash =hashlib.sha256(pw.encode('utf-8')).hexdigest()
                 
                 # DB에 저장된 해시된 패스워드는 user의 3번 인덱스에 위치
-                stored_hashed_pw = user[5] 
+                stored_hashed_pw = user[3] 
                 # 0 user_pkey 1 name 2 email 3 pwd_hash 4 subtitle 
                 user_pkey = user[0]
                 name = user[1]
@@ -282,8 +315,15 @@ def signup_process():
         
 
 @app.route('/chatroom')
-def chatroom():
-    return render_template('chatroom.html')   
+@login_required
+def chatroom(payload):
+    if payload:
+        print("chatroom(payload), @login_required",payload)
+        user_pkey = payload.get('user_pkey')
+        name = payload.get('name')
+        return render_template('chatroom.html',  user_pkey=user_pkey, name=name)
+    else:
+        return "Error", 401   
 
 @app.route('/video_mode')
 def video_mode():
@@ -301,39 +341,6 @@ def nonmember_settings():
 def photo():
     return render_template('photo.html')  
 
-# token을 decode하여 반환, 실패 시 payload = None
-def check_access_token(access_token):
-    try:
-        payload = jwt.decode(access_token, app.config['JWT_SECRET_KEY'] ,'HS256')
-        expiration_time = datetime.fromtimestamp(payload['exp'])
-        # 토큰 만료된 경우
-        if expiration_time < datetime.utcnow():
-            payload = None
-            
-    except jwt.InvalidTokenError:
-        payload=None
-    
-    return payload
-
-# decorator 함수
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwagrs):
-        if "token" not in request.cookies:
-            return jsonify({"error": "No token in cookies"}), 401
-        
-        # 요청 토큰 정보 받아오기
-        access_token = request.cookies.get('token') 
-        payload = check_access_token(access_token)
-        #print("access_token", access_token)
-        
-        if payload is None:
-            return jsonify({'error': 'Invalid token'}), 401
-        
-        return f(payload,*args, **kwagrs)
-
-    return decorated_function
-
 @app.route('/menu')
 @login_required
 def menu(payload):
@@ -342,7 +349,7 @@ def menu(payload):
         name = payload.get('name')
         subtitle = payload.get('subtitle')
         if subtitle == 0:
-            print("menu(payload), @login_required",name, subtitle)
+            #print("menu(payload), @login_required",name, subtitle)
             return render_template('nonmember_menu.html', name=name)
         else:
             #print("menu(payload), @login_required",name, subtitle)
@@ -419,30 +426,50 @@ def generateRoomID():
 def on_join(data):
     username = data['username']
     room_id = data['room_id']
+    
+    # 자막 사용자가 방을 만들 때만 user_pkey 값이 존재한다 그래서 get 이용
+    user_pkey = data.get('user_pkey') 
 
-    # 자막사용자가 대화방을 생성할 경우
+    # 자막 사용자가 대화방 생성 시
     if room_id == -1:
         room_id = generateRoomID()
         rooms[room_id] = set()
-        
-        print(room_id)
+        print("username", username) 
+        print("room_id",room_id)
 
         # 사용자를 해당 방에 추가하고 방에 조인
         rooms[room_id].add(username)
         join_room(room_id)
+        print("rooms", rooms) 
 
         # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
         emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
-    # 대화방 코드를 입력하여 참여할 경우
+        
+        # user_pkey 값이 있는 자막 사용자라면, DB 데이터 넣기
+        if user_pkey:
+            try:
+                with db.cursor() as cursor:
+                    query = "INSERT INTO chatroom(user_fkey, room_num) values (%s, %s) "
+                    cursor.execute(query, (user_pkey, room_id))
+                    db.commit()
+                    
+            except Exception as e:
+                    # 오류 발생 시 롤백
+                    print("오류 발생:", str(e))
+                    db.rollback()
+
+    # 존재하지 않는 대화방 코드 입력 시
+    elif room_id not in rooms:
+        print("wrong room code")
+        emit('error', {'message': '존재하지 않는 대화방 코드입니다.'})
+    # 올바른 대화방 코드 입력 시
     else:
-        # 존재하지 않는 대화방 코드 입력 시
-        if room_id not in rooms:
-            print("wrong room code")
-            emit('error', {'message': '존재하지 않는 대화방 코드입니다.'})
-        else:
-            join_room(room_id)
-            # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
-            emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
+        # 사용자를 해당 방에 추가하고 방에 조인
+        rooms[room_id].add(username)
+        join_room(room_id)
+        # 해당 방의 사용자 목록을 업데이트한 후 방에 있는 모든 사용자들에게 전송
+        emit('update_users', {'room_id': room_id, 'users': list(rooms[room_id])}, room=room_id)
+
 
 @socketio.on('leave')
 def on_leave(data):

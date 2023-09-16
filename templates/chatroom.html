@@ -19,8 +19,9 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
     <script>
-        let username = "subtitle_user";
+        let username = "{{ name }}";
         let room_id = -1;
+        let user_pkey = "{{ user_pkey }}";
         let socket;
         const chatroomContainer = document.getElementById('chatroom_container');
         const conversationBtn = document.getElementById('conversation_button');
@@ -28,7 +29,18 @@
         socket = io();
         socket.emit('join', {
             username,
-            room_id
+            room_id,
+            user_pkey
+        });
+
+        socket.on('update_users', (data) => {
+            room_id = data.room_id;
+            const users = data.users;
+            const userElements = users.map(user => `<div class="user">${user}</div>`).join('');
+            chatroomContainer.innerHTML =
+                `<div class="room_code" style="font-size: x-large; font-weight: bold;">대화방 코드 [${room_id}]</div>
+                <hr/>
+                <div class="users_container">${userElements}</div>`;
         });
 
         function conversation_button() {
@@ -52,21 +64,6 @@
                 location.href = "{{ url_for('menu')}}";
             }
         }
-
-        socket.emit('join', {
-            username,
-            room_id
-        });
-
-        socket.on('update_users', (data) => {
-            room_id = data.room_id;
-            const users = data.users;
-            const userElements = users.map(user => `<div class="user">${user}</div>`).join('');
-            chatroomContainer.innerHTML =
-                `<div class="room_code" style="font-size: x-large; font-weight: bold;">대화방 코드 [${room_id}]</div>
-                <hr/>
-                <div class="users_container">${userElements}</div>`;
-        });
 
         socket.on('send_data', (data) => {
             debugLog.innerHTML = `sending data: ${data.speaker}, ${data.positionX}, ${data.positionY}`;
