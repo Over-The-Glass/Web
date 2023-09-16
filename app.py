@@ -47,8 +47,6 @@ predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
 
 client_speech = ""
-global is_processing
-is_processing = False
 
 class LipMovement:
     def __init__(self, name):
@@ -88,18 +86,13 @@ print(f"Loaded face data of {known_names}")
 number_of_known_people = len(known_names)
 
 movements = [LipMovement(known_names[i]) for i in range(len(known_names))]
-
-check_frame = True
 latest_speaker_position = []
 difference = [0 for _ in range(len(known_names))]
-name = "?"
+name = "Unknown"
 
 def process_frame(data):
-    global latest_speaker_position
-    global is_processing 
     global name
-
-    is_processing = True
+    global latest_speaker_position
 
     image = cv2.imdecode(data, cv2.IMREAD_COLOR)
 
@@ -156,7 +149,6 @@ def process_frame(data):
             name = "Unknown"
     
     print("end processing")
-    is_processing = False
 
     return
 
@@ -404,16 +396,6 @@ def camera():
                 'positionY': latest_speaker_position[1]
             }
         )
-        
-            # if latest_speaker_position:
-            #     print("emit send_data")
-            #     socketio.emit(
-            #         'send_data',
-            #         {
-            #             'speaker': name,
-            #             'position': latest_speaker_position
-            #         }
-            #     )
 
         # 응답으로는 프레임 데이터가 아닌 성공 상태를 반환합니다.
         return 'Success'
