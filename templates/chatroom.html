@@ -19,8 +19,9 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
     <script>
-        let username = "subtitle_user";
+        let username = "{{ name }}";
         let room_id = -1;
+        let user_pkey = "{{ user_pkey }}";
         let socket;
         const chatroomContainer = document.getElementById('chatroom_container');
         const conversationBtn = document.getElementById('conversation_button');
@@ -28,7 +29,8 @@
         socket = io();
         socket.emit('join', {
             username,
-            room_id
+            room_id,
+            user_pkey
         });
 
         function conversation_button() {
@@ -55,7 +57,8 @@
 
         socket.emit('join', {
             username,
-            room_id
+            room_id,
+            user_pkey
         });
 
         socket.on('update_users', (data) => {
