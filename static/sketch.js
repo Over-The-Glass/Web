@@ -49,7 +49,7 @@ function updateCaption() {
             url: '/process_speech',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ 'speech': said }),
+            data: JSON.stringify({'speakerName':speakerName, 'speech': said }),
             success: function(response) {
                 console.log(response);
             },

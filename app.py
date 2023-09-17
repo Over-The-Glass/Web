@@ -383,6 +383,8 @@ def speaker_info():
 def process_speech():
     global client_speech
     client_speech = request.json['speech']
+    speaker_name = request.json['speakerName']
+    print("/process_speech line 387", client_speech, speaker_name )
     return 'OK'
 
 @app.route('/camera', methods=['POST'])
