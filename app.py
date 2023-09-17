@@ -23,9 +23,9 @@ app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png'}
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-# db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
 # db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
-db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
+# db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
 
 
 m = hashlib.sha256()
@@ -281,7 +281,7 @@ def signup_process():
             with db.cursor() as cursor:
             
                 # DB에 같은 이메일을 가진 회원이 있는지 확인
-                query = "SELECT * FROM Users WHERE email=%s"
+                query = "SELECT * FROM user WHERE email=%s"
                 cursor.execute(query, (email,))
                 existing_user = cursor.fetchone()
                 if existing_user:
@@ -300,7 +300,7 @@ def signup_process():
                 pw_hash = hashlib.sha256(pwd1.encode('utf-8')).hexdigest()
                 
                 # 새로운 사용자 추가
-                insert_query = "INSERT INTO Users (name, email, pwd_hash, subtitle) VALUES (%s, %s, %s, %s)"
+                insert_query = "INSERT INTO user (name, email, pwd_hash, subtitle) VALUES (%s, %s, %s, %s)"
                 cursor.execute(insert_query, (username, email, pw_hash, sub_value))
                 db.commit()
                 return jsonify({'message': 'Sign-up successful 회원가입이 완료되었습니다.'}), 200
