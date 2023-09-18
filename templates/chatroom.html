@@ -55,8 +55,8 @@
                     flag: "ended conversation mode"
                 };
                 Unity.call(JSON.stringify(jsonData));
-                debugLog.innerHTML =
-                    `<p>"ended conversation mode"</p>`
+                // debugLog.innerHTML =
+                //     `<p>"ended conversation mode"</p>`
                 socket.emit('leave', {
                     username,
                     room_id
@@ -66,7 +66,7 @@
         }
 
         socket.on('send_data', (data) => {
-            debugLog.innerHTML = `sending data: ${data.speaker}, ${data.positionX}, ${data.positionY}`;
+            // debugLog.innerHTML = `sending data: ${data.speaker}, ${data.positionX}, ${data.positionY}`;
             const speakerName = data.speaker;
             const positionX = data.positionX;
             const positionY = data.positionY;
