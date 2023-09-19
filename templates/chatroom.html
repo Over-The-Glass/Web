@@ -123,7 +123,6 @@
             console.log("________________");
             console.log(speechRec.resultJSON.results[speechRec.resultJSON.results.length - 1].isFinal);
 
-            <!--chatroom_key, said, speakerName을 -->
             if(speechRec.resultJSON.results[speechRec.resultJSON.results.length - 1].isFinal == true) {
                 fetch('/process_speech', {
                     method: "POST",

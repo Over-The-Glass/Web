@@ -1,11 +1,14 @@
-{% extends "base-no-subtitle.html" %} {% block head %}
+{% extends "base-no-subtitle.html" %}
+{% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}"> {% endblock %} {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}">
+{% endblock %} 
+{% block content %}
 <div class="container">
     <div class="modal">
         <div class="wrapper">
             <form id="form">
-                <input type="text" id="username" placeholder="이름" required>
+                <input type="text" id="username" placeholder="닉네임" required>
                 <input type="text" id="room_id" placeholder="대화방 코드(네 자리 숫자)" required>
                 <button type="submit" class="join">대화방 참여</button>
             </form>
@@ -43,7 +46,7 @@
             username,
             room_id
         });
-        location.href = "{{ url_for('main')}}";
+        location.href = "{{ url_for('menu')}}";
     }
 
     function joinForm(username, room_id) {
