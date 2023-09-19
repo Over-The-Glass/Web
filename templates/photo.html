@@ -1,77 +1,74 @@
-{% extends "base-without-sidebar.html" %} 
-{% block script %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/photo-style.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-{% endblock %}
-{% block content %}
-    <div>
-        <p style="color: red; display: flex; justify-content: center;"><span class="material-symbols-outlined" style="color: red">
+{% extends "base-without-sidebar.html" %} {% block script %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/photo-style.css') }}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /> {% endblock %} {% block content %}
+<div>
+    <p style="color: red; display: flex; justify-content: center;"><span class="material-symbols-outlined" style="color: red">
             warning
             </span>발화자 파악을 위해 얼굴 정면 사진을 업로드 해주세요!</p>
-        <span class="material-symbols-outlined" style="font-size: 140px; margin-top: 10px;">add_a_photo</span><br>
-        <!-- 카메라 접근 권한 요청 및 촬영 버튼 -->
-        <input type="file" accept="image/*" capture="camera" id="captureInput"><br>
-        <button id="captureButton">사진 선택</button>
-    
-        <!-- 이미지 미리보기 -->
-        <img src="" id="previewImage" width="300">
-    
-        <!-- 이미지 업로드 버튼 -->
-        <button id="uploadButton">업로드</button>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const captureInput = document.getElementById('captureInput');
-            const captureButton = document.getElementById('captureButton');
-            const previewImage = document.getElementById('previewImage');
-            const uploadButton = document.getElementById('uploadButton');
+    <span class="material-symbols-outlined" style="font-size: 140px; margin-top: 10px;">add_a_photo</span><br>
+    <!-- 카메라 접근 권한 요청 및 촬영 버튼 -->
+    <input type="file" accept="image/*" capture="camera" id="captureInput"><br>
+    <button id="captureButton">사진 선택</button>
 
-            // '촬영하기' 버튼 클릭 시 카메라 열기
-            captureButton.addEventListener('click', function() {
-                captureInput.click();
-            });
+    <!-- 이미지 미리보기 -->
+    <img src="" id="previewImage" width="300">
 
-            // 이미지 선택 시 미리보기 및 업로드 버튼 표시
-            captureInput.addEventListener('change', function() {
-                const selectedImage = captureInput.files[0];
-                if (selectedImage) {
-                    const imageURL = URL.createObjectURL(selectedImage);
-                    previewImage.src = imageURL;
-                    previewImage.style.display = 'block';
-                    uploadButton.style.display = 'block';
-                }
-            });
+    <!-- 이미지 업로드 버튼 -->
+    <button id="uploadButton">업로드</button>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const captureInput = document.getElementById('captureInput');
+        const captureButton = document.getElementById('captureButton');
+        const previewImage = document.getElementById('previewImage');
+        const uploadButton = document.getElementById('uploadButton');
 
-            // 이미지 업로드 버튼 클릭 시 서버로 전송
-            uploadButton.addEventListener('click', function() {
-                const selectedImage = captureInput.files[0];
-                if (selectedImage) {
-                    const formData = new FormData();
-                    formData.append('image', selectedImage);
-
-                    // 서버로 이미지 업로드 요청 보내기
-                    fetch('/upload', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if(data.error) {
-                                alert(data.error)
-                            }else{
-                                alert(data.message)
-                                window.location.href = "/chatroom"
-                            }
-                        }) 
-                        .catch(error => {
-                            var errorMessage = error.response.error;
-                            alert(errorMessage);
-                        });
-                }
-            });
+        // '촬영하기' 버튼 클릭 시 카메라 열기
+        captureButton.addEventListener('click', function() {
+            captureInput.click();
         });
-    </script>
+
+        // 이미지 선택 시 미리보기 및 업로드 버튼 표시
+        captureInput.addEventListener('change', function() {
+            const selectedImage = captureInput.files[0];
+            if (selectedImage) {
+                const imageURL = URL.createObjectURL(selectedImage);
+                previewImage.src = imageURL;
+                previewImage.style.display = 'block';
+                uploadButton.style.display = 'block';
+            }
+        });
+
+        // 이미지 업로드 버튼 클릭 시 서버로 전송
+        uploadButton.addEventListener('click', function() {
+            const selectedImage = captureInput.files[0];
+            if (selectedImage) {
+                const formData = new FormData();
+                formData.append('image', selectedImage);
+
+                // 서버로 이미지 업로드 요청 보내기
+                fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert(data.error)
+                        } else {
+                            alert(data.message)
+                            window.location.href = "/chatroom"
+                        }
+                    })
+                    .catch(error => {
+                        var errorMessage = error.response.error;
+                        alert(errorMessage);
+                    });
+            }
+        });
+    });
+</script>
 {% endblock %}
