@@ -5,13 +5,15 @@
             location.href = "{{ url_for('photo')}}";
         }
     </script>
-{% endblock %} 
-{% block content %}
+{% endblock %}
+{% block profile %}
     {% if name %}
-        <h4> [자막 미사용자] {{ name }} 님, 환영합니다!</h4>
+        [자막 미사용자] {{ name }} 님, 환영합니다!
     {% else %}
-    <p>Error name을 가져오지 못했습니다</p>
+        로그인을 해주세요
     {% endif %}
+{% endblock %}
+{% block content %}
     <button id="coversation_mode" onclick="nonmember_goToConversationMode()" style="margin-top: 20px;">대화방 참여</button><br><br>
     <script>
         const openButton = document.querySelector('.open');
