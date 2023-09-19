@@ -14,7 +14,7 @@
     {% endif %}
 {% endblock %}
 {% block content %}
-    <button id="coversation_mode" onclick="nonmember_goToConversationMode()" style="margin-top: 20px;">대화방 참여</button><br><br>
+    <img id="coversation_mode" src="{{ url_for('static', filename='src/img/join_chatroom.png')}}" alt="대화방 참여" onclick="nonmember_goToConversationMode()">
     <script>
         const openButton = document.querySelector('.open');
         const container = document.querySelector('.container');
