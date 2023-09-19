@@ -23,9 +23,9 @@ app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png'}
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+# db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
 # db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
-#db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
 
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
@@ -387,8 +387,9 @@ def process_speech():
     data = request.get_json()
     client_speech = data['speech']
     speaker_name = data['speakerName']
+    room_code = data['room_code']
 
-    print("/process_speech line 387", client_speech, speaker_name )
+    print("/process_speech line 387", client_speech, speaker_name, room_code)
     return jsonify(".")
 
 @app.route('/camera', methods=['POST'])
@@ -436,12 +437,13 @@ def on_join(data):
     # 자막 사용자가 방을 만들 때만 user_pkey 값이 존재한다 그래서 get 이용
     user_pkey = data.get('user_pkey') 
 
+    print("on_join line 435", username, room_id, user_pkey)
     # 자막 사용자가 대화방 생성 시
     if room_id == -1:
         room_id = generateRoomID()
         rooms[room_id] = set()
-        print("username", username) 
-        print("room_id",room_id)
+        #print("username", username) 
+        #print("room_id",room_id)
 
         # 사용자를 해당 방에 추가하고 방에 조인
         rooms[room_id].add(username)
@@ -457,7 +459,17 @@ def on_join(data):
                 with db.cursor() as cursor:
                     query = "INSERT INTO chatroom(user_fkey, room_num) values (%s, %s) "
                     cursor.execute(query, (user_pkey, room_id))
+                    
+                    # 방금 삽입한 레코드의 chatroom_pkey 값을 가져옴
+                    cursor.execute("SELECT LAST_INSERT_ID()")
+                    chatroom_pkey = cursor.fetchone()[0]
+                    
+                    # 커밋
                     db.commit()
+                    
+                    print("chatroom_pkey:", chatroom_pkey)
+                    # chatroom_pkey 값을 클라이언트에게 보냄
+                    emit('chatroom_pkey', {'chatroom_pkey': chatroom_pkey}, room=room_id)
                     
             except Exception as e:
                     # 오류 발생 시 롤백
@@ -509,15 +521,14 @@ def upload(payload):
     if not allowed_file(image.filename):
         return jsonify({'error': 'Invalid file type'}), 400
     
-    print(image.filename)
-    filename = secure_filename(image.filename)
+    #print(image.filename)
     # image.filename에서 확장자 추출
     file_extension = image.filename.split('.')[-1].lower()
-    print(file_extension)
-    print('app.py line 496', filename)
+    #print(file_extension)
+    #print('app.py line 496', filename)
     if payload:
         filename = payload.get('name')+"."+file_extension
-        print('app.py line 499', filename)
+        #print('app.py line 499', filename)
         image_path = os.path.join(app.config['UPLOAD_FOLDER'],filename)
         image.save(image_path)
         return jsonify({'message':'Image save successful 이미지 폴더 저장 성공'})

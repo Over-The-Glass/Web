@@ -1,20 +1,24 @@
-{% extends "base-no-subtitle.html" %} {% block head %}
-<script>
-    function nonmember_goToConversationMode() {
-        location.href = "{{ url_for('join_chatroom')}}";
-    }
-
-    function take_a_photo() {
-        location.href = "{{ url_for('photo')}}";
-    }
-</script>
-{% endblock %} {% block content %}
-<button id="coversation_mode" onclick="nonmember_goToConversationMode()" style="margin-top: 20px;">대화모드</button><br><br>
-<button id="coversation_mode" onclick="take_a_photo()" style="margin-top: 20px;">사진 선택</button><br><br>
-<script>
-    const openButton = document.querySelector('.open');
-    const container = document.querySelector('.container');
-    const closeButton = document.querySelector('.close');
+{% extends "base-no-subtitle.html" %} 
+{% block head %}
+    <script>
+        function nonmember_goToConversationMode() {
+            location.href = "{{ url_for('photo')}}";
+        }
+    </script>
+{% endblock %}
+{% block profile %}
+    {% if name %}
+        [자막 미사용자] {{ name }} 님, 환영합니다!
+    {% else %}
+        로그인을 해주세요
+    {% endif %}
+{% endblock %}
+{% block content %}
+    <img id="coversation_mode" src="{{ url_for('static', filename='src/img/join_chatroom.png')}}" alt="대화방 참여" onclick="nonmember_goToConversationMode()">
+    <script>
+        const openButton = document.querySelector('.open');
+        const container = document.querySelector('.container');
+        const closeButton = document.querySelector('.close');
 
     openButton.addEventListener('click', () => {
         container.style.display = 'flex';
@@ -36,18 +40,18 @@
         }
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        var welcomeMessage = document.getElementById("welcome-message");
+        // document.addEventListener("DOMContentLoaded", function() {
+        //     var welcomeMessage = document.getElementById("welcome-message");
 
-        var token = getCookie("token"); // 토큰 값 가져오기
-        console.log("token", token)
-        if (token) {
-            // 토큰이 존재할 경우 처리할 내용
-            // 예: 토큰을 해독하여 사용자 정보 가져오기 등
-            welcomeMessage.textContent = "토큰을 확인했습니다.";
-        } else {
-            welcomeMessage.textContent = "토큰이 없습니다.";
-        }
-    });
-</script>
+        //     var token = getCookie("token"); // 토큰 값 가져오기
+        //     console.log("token", token)
+        //     if (token) {
+        //         // 토큰이 존재할 경우 처리할 내용
+        //         // 예: 토큰을 해독하여 사용자 정보 가져오기 등
+        //         welcomeMessage.textContent = "토큰을 확인했습니다.";
+        //     } else {
+        //         welcomeMessage.textContent = "토큰이 없습니다.";
+        //     }
+        // });
+    </script>
 {% endblock %}
