@@ -23,7 +23,7 @@ app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png'}
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
 # db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
 #db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
 
@@ -206,7 +206,7 @@ def login_process():
         
     with db.cursor() as cursor:
         # DB에 입력된 이메일과 일치하는 사용자 정보 조회
-            query = "SELECT * FROM user WHERE email = %s"
+            query = "SELECT * FROM Users WHERE email = %s"
             cursor.execute(query, (email,))
             user = cursor.fetchone()
 
@@ -215,7 +215,7 @@ def login_process():
                 pw_hash =hashlib.sha256(pw.encode('utf-8')).hexdigest()
                 
                 # DB에 저장된 해시된 패스워드는 user의 3번 인덱스에 위치
-                stored_hashed_pw = user[3] 
+                stored_hashed_pw = user[5] 
                 # 0 user_pkey 1 name 2 email 3 pwd_hash 4 subtitle 
                 user_pkey = user[0]
                 name = user[1]
@@ -279,7 +279,7 @@ def signup_process():
             with db.cursor() as cursor:
             
                 # DB에 같은 이메일을 가진 회원이 있는지 확인
-                query = "SELECT * FROM user WHERE email=%s"
+                query = "SELECT * FROM Users WHERE email=%s"
                 cursor.execute(query, (email,))
                 existing_user = cursor.fetchone()
                 if existing_user:
@@ -298,7 +298,7 @@ def signup_process():
                 pw_hash = hashlib.sha256(pwd1.encode('utf-8')).hexdigest()
                 
                 # 새로운 사용자 추가
-                insert_query = "INSERT INTO user (name, email, pwd_hash, subtitle) VALUES (%s, %s, %s, %s)"
+                insert_query = "INSERT INTO Users (name, email, pwd_hash, subtitle) VALUES (%s, %s, %s, %s)"
                 cursor.execute(insert_query, (username, email, pw_hash, sub_value))
                 db.commit()
                 return jsonify({'message': 'Sign-up successful 회원가입이 완료되었습니다.'}), 200
