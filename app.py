@@ -23,10 +23,9 @@ app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png'}
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
+# db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
 # db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
-# db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
-
+db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
 
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
@@ -86,7 +85,6 @@ for file in os.listdir("faces"):
 
 print(f"Loaded face data of {known_names}")
 number_of_known_people = len(known_names)
-
 movements = [LipMovement(known_names[i]) for i in range(len(known_names))]
 latest_speaker_position = []
 difference = [0 for _ in range(len(known_names))]
@@ -382,10 +380,12 @@ def speaker_info():
 @app.route('/process_speech', methods=['POST'])
 def process_speech():
     global client_speech
-    client_speech = request.json['speech']
-    speaker_name = request.json['speakerName']
+    data = request.get_json()
+    client_speech = data['speech']
+    speaker_name = data['speakerName']
+
     print("/process_speech line 387", client_speech, speaker_name )
-    return 'OK'
+    return jsonify(".")
 
 @app.route('/camera', methods=['POST'])
 def camera():

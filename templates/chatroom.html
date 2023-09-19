@@ -4,7 +4,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js"></script>
     <script src="{{ url_for('static', filename='libraries/p5.speech.js') }}"></script>
-    <script src="{{ url_for('static', filename='sketch.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}"> 
 {% endblock %} 
 {% block content %}
@@ -19,6 +18,64 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
     <script>
+        let speechRec = new p5.SpeechRec('ko-kr', gotSpeech);
+        let outputText = "";
+        let continuous = true;
+        let interimResults = true;
+        let said = ''; // 음성 결과를 저장하는 변수
+        let speakerName = '';
+
+        function setup() {
+            noCanvas();
+            outputTextElement = document.getElementById('outputText');
+            speechRec.onEnd = restart;
+            speechRec.start(continuous, interimResults);
+        }
+
+        function gotSpeech() {
+            if (speechRec.resultValue) {
+                said = speechRec.resultString;
+                fetch('/speaker_info')
+                    .then(response => response.json())
+                    .then(data => {
+                        speakerName = data.speaker;
+                    })
+                    .catch(error => {
+                        console.log('Error:', error);
+                    });
+                outputTextElement.innerHTML = speakerName + "," + said;
+                var jsonData = {
+                    flag: 'in conversation mode',
+                    change: 'subtitle',
+                    speaker: speakerName,
+                    subtitle: said
+                };
+                Unity.call(JSON.stringify(jsonData));
+            }
+            console.log("________________");
+            console.log(speechRec.resultJSON.results[speechRec.resultJSON.results.length - 1].isFinal);
+            if(speechRec.resultJSON.results[speechRec.resultJSON.results.length - 1].isFinal == true) {
+                fetch('/process_speech', {
+                    method: "POST",
+                    body: JSON.stringify({
+                        speech: said,
+                        speakerName: speakerName
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then((response) => response.json())
+                .then((result) => console.log(result))
+                .catch((error) => console.error('Error:', error));
+            }
+                
+        }
+
+        function restart() {
+            speechRec.start(continuous, interimResults);
+        }
+
         let username = "{{ name }}";
         let room_id = -1;
         let user_pkey = "{{ user_pkey }}";
