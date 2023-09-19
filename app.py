@@ -23,9 +23,9 @@ app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png'}
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-# db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
 # db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
-db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
+#db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
 
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
@@ -505,11 +505,15 @@ def upload(payload):
     if not allowed_file(image.filename):
         return jsonify({'error': 'Invalid file type'}), 400
     
+    print(image.filename)
     filename = secure_filename(image.filename)
-    #print('app.py line 496', filename)
+    # image.filename에서 확장자 추출
+    file_extension = image.filename.split('.')[-1].lower()
+    print(file_extension)
+    print('app.py line 496', filename)
     if payload:
-        filename = payload.get('name')+"."+filename
-        #print('app.py line 499', filename)
+        filename = payload.get('name')+"."+file_extension
+        print('app.py line 499', filename)
         image_path = os.path.join(app.config['UPLOAD_FOLDER'],filename)
         image.save(image_path)
         return jsonify({'message':'Image save successful 이미지 폴더 저장 성공'})
