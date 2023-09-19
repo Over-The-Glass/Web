@@ -20,11 +20,11 @@
     {% else %}
     <p>Error name을 가져오지 못했습니다</p>
     {% endif %}
-
-    <button id="coversation_mode" onclick="goToConversationMode()">대화모드</button><br><br>
-    <button id="conversation_history" onclick="conversationHistory()">대화기록</button><br><br>
-    <button id="video_mode" onclick="goToVideoMode()">영상시청모드</button>
-
+    <img id="coversation_mode" src="{{ url_for('static', filename='src/img/conversation_mode.png')}}" alt="대화모드" onclick="goToConversationMode()">
+    <br><br>
+    <img id="conversation_history" src="{{ url_for('static', filename='src/img/conversation_history.png')}}" alt="대화기록" onclick="conversationHistory()">
+    <br><br>
+    <img id="video_mode" src="{{ url_for('static', filename='src/img/video_mode.png')}}" alt="영상시청모드" onclick="goToVideoMode()">
     <script>
         function getCookie(name) {
             console.log("name", name)
