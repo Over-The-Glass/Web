@@ -9,14 +9,6 @@
     }
 </script>
 {% endblock %} {% block content %}
-<p>
-    <id="welcome-message">
-</p>
-{% if name %}
-<h4> [자막 미사용자] {{ name }} 님, 환영합니다!</h4>
-{% else %}
-<p>Error name을 가져오지 못했습니다</p>
-{% endif %}
 <button id="coversation_mode" onclick="nonmember_goToConversationMode()" style="margin-top: 20px;">대화모드</button><br><br>
 <button id="coversation_mode" onclick="take_a_photo()" style="margin-top: 20px;">사진 선택</button><br><br>
 <script>
