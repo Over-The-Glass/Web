@@ -171,11 +171,33 @@
 }
 
 #date {
+    margin-top: 5px;
     background-color: #ffffff;
     border-radius: 50px;
     border: #ffffff;
-    width: 250px;
-    height: 50px;
+    width: 315px;
+    height: 30px;
+    display: inline-block;
+    justify-content: center;
+}
+
+#history_button {
+    width: 315px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 5px;
+    background: #FFF8B5;
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
+    border-left: none;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#history_button:hover {
+    background-color: #fff59a;
 }
 
 .container_2,
@@ -238,16 +260,13 @@
     border-right: none;
     border-left: none;
     border-top: none;
-    background: #E1E8F0CC;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    max-width: 80%;
-    row-gap: 15px;
-    padding: 30px;
-    width: 320px;
-    height: 150px;
+    background: #7286D3;
+    display: inline-block;
+    margin-top: 20px;
+    /* max-width: 80%; */
+    /* row-gap: 15px; */
+    width: 325px;
+    height: 40px;
     border-radius: 80px;
 }
 
