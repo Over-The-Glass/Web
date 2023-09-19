@@ -7,7 +7,6 @@
     </script>
 {% endblock %} 
 {% block content %}
-    <p><id="welcome-message"></p>
     {% if name %}
         <h4> [자막 미사용자] {{ name }} 님, 환영합니다!</h4>
     {% else %}
@@ -39,18 +38,18 @@
             }
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            var welcomeMessage = document.getElementById("welcome-message");
+        // document.addEventListener("DOMContentLoaded", function() {
+        //     var welcomeMessage = document.getElementById("welcome-message");
 
-            var token = getCookie("token"); // 토큰 값 가져오기
-            console.log("token", token)
-            if (token) {
-                // 토큰이 존재할 경우 처리할 내용
-                // 예: 토큰을 해독하여 사용자 정보 가져오기 등
-                welcomeMessage.textContent = "토큰을 확인했습니다.";
-            } else {
-                welcomeMessage.textContent = "토큰이 없습니다.";
-            }
-        });
+        //     var token = getCookie("token"); // 토큰 값 가져오기
+        //     console.log("token", token)
+        //     if (token) {
+        //         // 토큰이 존재할 경우 처리할 내용
+        //         // 예: 토큰을 해독하여 사용자 정보 가져오기 등
+        //         welcomeMessage.textContent = "토큰을 확인했습니다.";
+        //     } else {
+        //         welcomeMessage.textContent = "토큰이 없습니다.";
+        //     }
+        // });
     </script>
 {% endblock %}
