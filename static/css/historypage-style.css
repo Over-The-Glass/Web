@@ -1,0 +1,53 @@
+body {
+    background-color: #A69986;
+}
+
+.history_date_text {
+    font-weight: bold;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-left: 50px;
+    width: 260px;
+    height: 30px;
+    background-color: #FFF8B5;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    background-color: none;
+    border: 3px solid #736754;
+    border-radius: 5px;
+}
+
+.message {
+    width: 260px;
+    height: 30px;
+    margin-left: 50px;
+    border-radius: 5px;
+}
+
+.sent {
+    margin-left: 50px;
+    background-color: #000000;
+    color: rgb(255, 255, 255);
+    text-align: right;
+    align-self: flex-end;
+}
+
+.received {
+    margin-left: 50px;
+    background-color: #ffffff;
+    color: #333;
+    text-align: left;
+    align-self: flex-start;
+}
+
+#talk {
+    font-weight: bold;
+    margin-left: 50px;
+    margin-top: 20px;
+    width: 260px;
+    height: 30px;
+    flex-shrink: 0;
+    background-color: white;
+}

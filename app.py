@@ -369,6 +369,10 @@ def logout():
 def record():
     return render_template('record.html')
 
+@app.route('/history_page')
+def history_page():
+    return render_template('history_page.html')
+
 @app.route('/setting')
 def settings():
     return render_template('settings.html')
