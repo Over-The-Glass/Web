@@ -1,9 +1,8 @@
-{% extends "base-no-subtitle.html" %} 
-{% block head %}
-    <script>
-        function nonmember_goToConversationMode() {
-            location.href = "{{ url_for('join_chatroom')}}";
-        }
+{% extends "base-no-subtitle.html" %} {% block head %}
+<script>
+    function nonmember_goToConversationMode() {
+        location.href = "{{ url_for('join_chatroom')}}";
+    }
 
         function take_a_photo() {
             location.href = "{{ url_for('photo')}}";
@@ -23,38 +22,38 @@
         const container = document.querySelector('.container');
         const closeButton = document.querySelector('.close');
 
-        openButton.addEventListener('click', () => {
-            container.style.display = 'flex';
+    openButton.addEventListener('click', () => {
+        container.style.display = 'flex';
 
-        });
+    });
 
-        closeButton.addEventListener('click', () => {
-            container.style.display = 'none';
+    closeButton.addEventListener('click', () => {
+        container.style.display = 'none';
 
-        });
+    });
 
-        function getCookie(name) {
-            console.log("name", name)
-            var value = "; " + document.cookie;
-            console.log("value", value)
-            var parts = value.split("; " + name + "=");
-            if (parts.length === 2) {
-                return parts.pop().split(";").shift();
-            }
+    function getCookie(name) {
+        console.log("name", name)
+        var value = "; " + document.cookie;
+        console.log("value", value)
+        var parts = value.split("; " + name + "=");
+        if (parts.length === 2) {
+            return parts.pop().split(";").shift();
         }
+    }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            var welcomeMessage = document.getElementById("welcome-message");
+    document.addEventListener("DOMContentLoaded", function() {
+        var welcomeMessage = document.getElementById("welcome-message");
 
-            var token = getCookie("token"); // 토큰 값 가져오기
-            console.log("token", token)
-            if (token) {
-                // 토큰이 존재할 경우 처리할 내용
-                // 예: 토큰을 해독하여 사용자 정보 가져오기 등
-                welcomeMessage.textContent = "토큰을 확인했습니다.";
-            } else {
-                welcomeMessage.textContent = "토큰이 없습니다.";
-            }
-        });
-    </script>
+        var token = getCookie("token"); // 토큰 값 가져오기
+        console.log("token", token)
+        if (token) {
+            // 토큰이 존재할 경우 처리할 내용
+            // 예: 토큰을 해독하여 사용자 정보 가져오기 등
+            welcomeMessage.textContent = "토큰을 확인했습니다.";
+        } else {
+            welcomeMessage.textContent = "토큰이 없습니다.";
+        }
+    });
+</script>
 {% endblock %}
