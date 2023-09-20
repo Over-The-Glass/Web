@@ -6,7 +6,6 @@ body {
     font-weight: bold;
     margin-top: 50px;
     margin-bottom: 50px;
-    margin-left: 10px;
     width: 260px;
     height: 30px;
     background-color: #FFF8B5;
@@ -22,12 +21,10 @@ body {
 .message {
     width: 260px;
     height: 30px;
-    margin-left: 10px;
     border-radius: 5px;
 }
 
 .sent {
-    margin-left: 10px;
     background-color: #000000;
     color: rgb(255, 255, 255);
     text-align: right;
@@ -35,7 +32,6 @@ body {
 }
 
 .received {
-    margin-left: 10px;
     background-color: #ffffff;
     color: #333;
     text-align: left;

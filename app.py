@@ -215,7 +215,7 @@ def login_process():
                 pw_hash =hashlib.sha256(pw.encode('utf-8')).hexdigest()
                 
                 # DB에 저장된 해시된 패스워드는 user의 3번 인덱스에 위치
-                stored_hashed_pw = user[5] 
+                stored_hashed_pw = user[3] 
                 # 0 user_pkey 1 name 2 email 3 pwd_hash 4 subtitle 
                 user_pkey = user[0]
                 name = user[1]
