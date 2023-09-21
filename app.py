@@ -23,9 +23,9 @@ app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png'}
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-# db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
 # db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
-db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+# db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
 
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
@@ -389,7 +389,22 @@ def process_speech():
     speaker_name = data['speakerName']
     room_code = data['room_code']
 
-    print("/process_speech line 387", client_speech, speaker_name, room_code)
+    #print("/process_speech line 387", client_speech, speaker_name, room_code)
+    try:
+        with db.cursor() as cursor:
+            query = "INSERT INTO chatroom_text(chatroom_fkey, speaker, text) values (%s, %s, %s)"
+            cursor.execute(query, (room_code, speaker_name, client_speech))
+            db.commit()
+            
+            return jsonify({'message': '대화기록이 저장되었습니다.'}), 200
+              
+    except Exception as e:
+        # 오류 발생 시 롤백
+        print(f'대화기록 저장 중 오류 발생: {e}')
+        db.rollback()
+        return jsonify({'Error': '대화기록 실패'}), 500
+
+    
     return jsonify(".")
 
 @app.route('/camera', methods=['POST'])
