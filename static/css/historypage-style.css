@@ -1,5 +1,5 @@
 body {
-    background-color: #A69986;
+    background-color: #EAEAEA;
 }
 
 .history_date_text {
@@ -8,14 +8,15 @@ body {
     margin-bottom: 50px;
     width: 260px;
     height: 30px;
-    background-color: #FFF8B5;
+    background-color: var(--main);
     text-align: center;
     justify-content: center;
     display: flex;
     align-items: center;
     background-color: none;
-    border: 3px solid #736754;
-    border-radius: 5px;
+    /* border: 3px solid #736754; */
+    border-radius: 20px;
+    color: white;
 }
 
 .message {
