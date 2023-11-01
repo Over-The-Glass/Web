@@ -9,13 +9,13 @@
 {% block content %}
     <div class="chatroom_container" id="chatroom_container"></div>
     <div id="output">
-        <p id="outputText">who said what</p>
+        <!-- <p id="outputText">who said what</p> -->
     </div>
     <span class="material-symbols-outlined" style="font-size: 150px">sms</span><br><br>
     <button id="conversation_button" onclick="conversation_button()">대화모드 시작</button>
-    <div class="debug_log" id="debug_log">
+    <!-- <div class="debug_log" id="debug_log">
         <p>debug log</p>
-    </div>
+    </div> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
 
     <script>
@@ -33,7 +33,7 @@
 
         const chatroomContainer = document.getElementById('chatroom_container');
         const conversationBtn = document.getElementById('conversation_button');
-        const debugLog = document.getElementById('debug_log');
+        // const debugLog = document.getElementById('debug_log');
         socket = io();
         socket.emit('join', {
             username,
@@ -68,8 +68,8 @@
                     flag: "ended conversation mode"
                 };
                 Unity.call(JSON.stringify(jsonData));
-                debugLog.innerHTML =
-                    `<p>"ended conversation mode"</p>`
+                // debugLog.innerHTML =
+                //     `<p>"ended conversation mode"</p>`
                 socket.emit('leave', {
                     username,
                     room_id
@@ -79,7 +79,7 @@
         }
 
         socket.on('send_data', (data) => {
-            debugLog.innerHTML = `sending data: ${data.speaker}, ${data.positionX}, ${data.positionY}`;
+            // debugLog.innerHTML = `sending data: ${data.speaker}, ${data.positionX}, ${data.positionY}`;
             const speakerName = data.speaker;
             const positionX = data.positionX;
             const positionY = data.positionY;
@@ -118,7 +118,7 @@
                     speaker: speakerName,
                     subtitle: said
                 };
-                <!--Unity.call(JSON.stringify(jsonData));-->
+                Unity.call(JSON.stringify(jsonData));
             }
             console.log("________________");
             console.log(speechRec.resultJSON.results[speechRec.resultJSON.results.length - 1].isFinal);
