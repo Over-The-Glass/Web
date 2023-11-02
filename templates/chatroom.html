@@ -1,130 +1,127 @@
-{% extends "base.html" %} 
-{% block head %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js"></script>
-    <script src="{{ url_for('static', filename='libraries/p5.speech.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}"> 
-{% endblock %} 
-{% block content %}
-    <div class="chatroom_container" id="chatroom_container"></div>
-    <div id="output">
-        <!-- <p id="outputText">who said what</p> -->
-    </div>
-    <span class="material-symbols-outlined" style="font-size: 150px">sms</span><br><br>
-    <button id="conversation_button" onclick="conversation_button()">대화모드 시작</button>
-    <!-- <div class="debug_log" id="debug_log">
-        <p>debug log</p>
-    </div> -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+{% extends "base.html" %} {% block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js"></script>
+<script src="{{ url_for('static', filename='libraries/p5.speech.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}"> {% endblock %} {% block content %}
+<div class="chatroom_container" id="chatroom_container"></div>
+<div id="output">
+    <p id="outputText">who said what</p>
+</div>
+<span class="material-symbols-outlined" style="font-size: 150px">sms</span><br><br>
+<button id="conversation_button" onclick="conversation_button()">대화모드 시작</button>
+<div class="debug_log" id="debug_log">
+    <p>debug log</p>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
 
-    <script>
-        let username = "{{ name }}";
-        let room_id = -1;
-        let user_pkey = "{{ user_pkey }}";
-        let socket;
-        let speechRec = new p5.SpeechRec('ko-kr', gotSpeech);
-        let outputText = "";
-        let continuous = true;
-        let interimResults = true;
-        let said = ''; // 음성 결과를 저장하는 변수
-        let speakerName = '';
-        let room_code= '';
+<script>
+    let username = "{{ name }}";
+    let room_id = -1;
+    let user_pkey = "{{ user_pkey }}";
+    let socket;
+    let speechRec = new p5.SpeechRec('ko-kr', gotSpeech);
+    let outputText = "";
+    let continuous = true;
+    let interimResults = true;
+    let said = ''; // 음성 결과를 저장하는 변수
+    let speakerName = '';
+    let room_code = '';
 
-        const chatroomContainer = document.getElementById('chatroom_container');
-        const conversationBtn = document.getElementById('conversation_button');
-        // const debugLog = document.getElementById('debug_log');
-        socket = io();
-        socket.emit('join', {
-            username,
-            room_id,
-            user_pkey
-        });
+    const chatroomContainer = document.getElementById('chatroom_container');
+    const conversationBtn = document.getElementById('conversation_button');
+    const debugLog = document.getElementById('debug_log');
+    socket = io();
+    socket.emit('join', {
+        username,
+        room_id,
+        user_pkey
+    });
 
-        socket.on('update_users', (data) => {
-            room_id = data.room_id;
-            const users = data.users;
-            const userElements = users.map(user => `<div class="user">${user}</div>`).join('');
-            chatroomContainer.innerHTML =
-                `<div class="room_code" style="font-size: x-large; font-weight: bold;">대화방 코드 [${room_id}]</div>
+    socket.on('update_users', (data) => {
+        room_id = data.room_id;
+        const users = data.users;
+        const userElements = users.map(user => `<div class="user">${user}</div>`).join('');
+        chatroomContainer.innerHTML =
+            `<div class="room_code" style="font-size: x-large; font-weight: bold;">대화방 코드 [${room_id}]</div>
                 <hr/>
                 <div class="users_container">${userElements}</div>`;
-        });
+    });
 
-        socket.on('chatroom_pkey', (data) => {
-            room_code = data.chatroom_pkey;
-            console.log('Received chatroom_pkey:', room_code);
-        });
+    socket.on('chatroom_pkey', (data) => {
+        room_code = data.chatroom_pkey;
+        console.log('Received chatroom_pkey:', room_code);
+    });
 
-        function conversation_button() {
-            if (conversationBtn.innerHTML == "대화모드 시작") {
-                var jsonData = {
-                    flag: "started conversation mode"
-                };
-                Unity.call(JSON.stringify(jsonData));
-                conversationBtn.innerHTML = "대화모드 종료";
-            } else if (conversationBtn.innerHTML == "대화모드 종료") {
-                var jsonData = {
-                    flag: "ended conversation mode"
-                };
-                Unity.call(JSON.stringify(jsonData));
-                // debugLog.innerHTML =
-                //     `<p>"ended conversation mode"</p>`
-                socket.emit('leave', {
-                    username,
-                    room_id
-                });
-                location.href = "{{ url_for('menu')}}";
-            }
-        }
-
-        socket.on('send_data', (data) => {
-            // debugLog.innerHTML = `sending data: ${data.speaker}, ${data.positionX}, ${data.positionY}`;
-            const speakerName = data.speaker;
-            const positionX = data.positionX;
-            const positionY = data.positionY;
+    function conversation_button() {
+        if (conversationBtn.innerHTML == "대화모드 시작") {
             var jsonData = {
-                flag: "in conversation mode",
-                change: "speaker position",
-                speaker: speakerName,
-                positionX: positionX,
-                positionY: positionY
+                flag: "started conversation mode"
             };
             Unity.call(JSON.stringify(jsonData));
-        });
-
-        function setup() {
-            noCanvas();
-            outputTextElement = document.getElementById('outputText');
-            speechRec.onEnd = restart;
-            speechRec.start(continuous, interimResults);
+            conversationBtn.innerHTML = "대화모드 종료";
+        } else if (conversationBtn.innerHTML == "대화모드 종료") {
+            var jsonData = {
+                flag: "ended conversation mode"
+            };
+            Unity.call(JSON.stringify(jsonData));
+            debugLog.innerHTML =
+                `<p>"ended conversation mode"</p>`
+            socket.emit('leave', {
+                username,
+                room_id
+            });
+            location.href = "{{ url_for('menu')}}";
         }
+    }
 
-        function gotSpeech() {
-            if (speechRec.resultValue) {
-                said = speechRec.resultString;
-                fetch('/speaker_info')
-                    .then(response => response.json())
-                    .then(data => {
-                        speakerName = data.speaker;
-                    })
-                    .catch(error => {
-                        console.log('Error:', error);
-                    });
-                outputTextElement.innerHTML = speakerName + "," + said;
-                var jsonData = {
-                    flag: 'in conversation mode',
-                    change: 'subtitle',
-                    speaker: speakerName,
-                    subtitle: said
-                };
-                Unity.call(JSON.stringify(jsonData));
-            }
-            console.log("________________");
-            console.log(speechRec.resultJSON.results[speechRec.resultJSON.results.length - 1].isFinal);
+    socket.on('send_data', (data) => {
+        debugLog.innerHTML = `sending data: ${data.speaker}, ${data.positionX}, ${data.positionY}`;
+        const speakerName = data.speaker;
+        const positionX = data.positionX;
+        const positionY = data.positionY;
+        var jsonData = {
+            flag: "in conversation mode",
+            change: "speaker position",
+            speaker: speakerName,
+            positionX: positionX,
+            positionY: positionY
+        };
+        Unity.call(JSON.stringify(jsonData));
+    });
 
-            if(speechRec.resultJSON.results[speechRec.resultJSON.results.length - 1].isFinal == true) {
-                fetch('/process_speech', {
+    function setup() {
+        noCanvas();
+        outputTextElement = document.getElementById('outputText');
+        speechRec.onEnd = restart;
+        speechRec.start(continuous, interimResults);
+    }
+
+    function gotSpeech() {
+        if (speechRec.resultValue) {
+            said = speechRec.resultString;
+            fetch('/speaker_info')
+                .then(response => response.json())
+                .then(data => {
+                    speakerName = data.speaker;
+                })
+                .catch(error => {
+                    console.log('Error:', error);
+                });
+            outputTextElement.innerHTML = speakerName + "," + said;
+            var jsonData = {
+                flag: 'in conversation mode',
+                change: 'subtitle',
+                speaker: speakerName,
+                subtitle: said
+            };
+            Unity.call(JSON.stringify(jsonData));
+        }
+        console.log("________________");
+        console.log(speechRec.resultJSON.results[speechRec.resultJSON.results.length - 1].isFinal);
+
+        if (speechRec.resultJSON.results[speechRec.resultJSON.results.length - 1].isFinal == true) {
+            fetch('/process_speech', {
                     method: "POST",
                     body: JSON.stringify({
                         speech: said,
@@ -138,23 +135,23 @@
                 .then((response) => response.json())
                 .then((result) => console.log(result))
                 .catch((error) => console.error('Error:', error));
-            }
         }
+    }
 
-        function restart() {
-            speechRec.start(continuous, interimResults);
+    function restart() {
+        speechRec.start(continuous, interimResults);
+    }
+
+    // beforeunload 이벤트 핸들러 추가 (페이지 종료 시 실행)
+    window.addEventListener('beforeunload', (e) => {
+        // 대화방 종료 버튼을 누르지 않았을 경우
+        if (flag === "in conversation mode") {
+            e.preventDefault();
+            e.returnValue = ''; // 빈 문자열을 할당하여 알림 표시
+
+            // 대화 종료 버튼을 누르지 않고 페이지를 벗어나려고 할 때 알림 표시 - 안됨..
+            alert('대화를 종료하려면 대화 종료 버튼을 누르세요.');
         }
-
-        // beforeunload 이벤트 핸들러 추가 (페이지 종료 시 실행)
-        window.addEventListener('beforeunload', (e) => {
-            // 대화방 종료 버튼을 누르지 않았을 경우
-            if (flag === "in conversation mode") {
-                e.preventDefault();
-                e.returnValue = ''; // 빈 문자열을 할당하여 알림 표시
-
-                // 대화 종료 버튼을 누르지 않고 페이지를 벗어나려고 할 때 알림 표시 - 안됨..
-                alert('대화를 종료하려면 대화 종료 버튼을 누르세요.');
-            }
-        });
-    </script>
+    });
+</script>
 {% endblock %}
