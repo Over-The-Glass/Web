@@ -24,8 +24,6 @@ socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
 db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
-# db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
-# db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
 
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
@@ -376,6 +374,22 @@ def history_page():
 @app.route('/setting')
 def settings():
     return render_template('settings.html')
+
+@app.route('/project_intro')
+def project_intro():
+    return render_template('project_intro.html')
+
+@app.route('/how_to_use')
+def how_to_use():
+    return render_template('how_to_use.html')
+
+@app.route('/project_intro_nosubtitle')
+def project_intro_nosubtitle():
+    return render_template('project_intro_nosubtitle.html')
+
+@app.route('/how_to_use_nosubtitle')
+def how_to_use_nosubtitle():
+    return render_template('how_to_use_nosubtitle.html')
 
 @app.route('/speaker_info')
 def speaker_info():
