@@ -1,163 +1,120 @@
-{% extends "base.html" %} {% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/settings-style.css') }}"> {% endblock %} {% block content %}
-<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" /> -->
-
-<div>
-    <button id="modify_mypage_nickname">닉네임 수정</button><br>
-    <button id="modify_mypage_subtitles_ox">자막 사용</button><br>
-    <button id="modify_mypage_subtitles_size">자막 크기</button><br>
-    <button id="modify_mypage_subtitles_color">자막 색상</button><br>
-    <a><input type="button" value="회원 탈퇴" id="modify_mypage_unregister"></a>
-</div>
-
-<div class="container_2">
-    <div class="modal_2">
-        <div><a href="{{ url_for('settings') }}" id="close_2">x</a></div>
-        <div id="text1">닉네임 수정 <input type="text" id="nickname"></input>
-        </div>
-        <div id="text1">상태메세지 수정 <input type="text" id="status_message"></input>
-        </div><br>
-        <button id="save">저장</button>
-        <!-- <button class="close">Close</button> -->
-        <!-- <button id="nickname" onclick="goToConversationMode()">닉네임 수정</button> -->
-        <!-- <button id="message" onclick="joinChatRoom()">상태메세지 수정</button> -->
+{% extends "base.html" %} 
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings-style.css') }}">
+{% endblock %} 
+{% block content %}
+    <div id="settingsBtns">
+        <button onclick="openModal('nicknameModal')">닉네임 수정</button>
+        <button onclick="openModal('captionUseModal')">자막 사용 여부</button>
+        <button onclick="openModal('captionSizeModal')">자막 크기 설정</button>
+        <button onclick="openModal('captionColorModal')">자막 색상 설정</button>
     </div>
-</div>
 
-<div class="container_3">
-    <div class="modal_3">
-        <div><a href="{{ url_for('settings') }}" id="close_3">x</a></div>
-        <div id="use_subtitles">
-            <input type="checkbox">자막 사용
+    <!-- 닉네임 수정 모달 -->
+    <div id="nicknameModal" class="modalForm">
+        <div class="modalForm-content">
+            <span class="close" onclick="closeModal('nicknameModal')">×</span>
+            <div class="modalTitle">닉네임 수정</div>
+            <input type="text" id="nicknameInput" placeholder="새 닉네임">
+            <button class="saveBtn" onclick="saveNickname()">저장</button>
         </div>
-        <div id="subtitles_not_used">
-            <input type="checkbox">자막 미사용
-        </div><br>
-        <button id="save">저장</button>
     </div>
-</div>
 
-
-<div class="container_4">
-    <div class="modal_4">
-        <div><a href="{{ url_for('settings') }}" id="close_4">x</a></div>
-        <div id="font_smallsize">
-            <input type="checkbox">작은 글씨
+    <!-- 자막 사용 여부 모달 -->
+    <div id="captionUseModal" class="modalForm">
+        <div class="modalForm-content">
+            <span class="close" onclick="closeModal('captionUseModal')">&times;</span>
+            <div class="modalTitle">자막 사용 여부</div>
+            <label>
+                <input type="radio" name="captionUse" value="yes" checked> 자막 사용
+            </label>
+            <label>
+                <input type="radio" name="captionUse" value="no"> 자막 미사용
+            </label>
+            <button class="saveBtn" onclick="saveCaptionUse()">저장</button>
         </div>
-        <div id="font_mediumsize">
-            <input type="checkbox">중간 글씨
-        </div>
-        <div id="font_bigsize">
-            <input type="checkbox">큰 글씨
-        </div>
-        <button id="save">저장</button>
     </div>
-</div>
 
-<div class="container_5">
-    <div class="modal_5">
-        <div><a href="{{ url_for('settings') }}" id="close_5">x</a></div>
-        <div id="color_whiteandblack">
-            <input type="checkbox">흰색 & 검은색
+    <!-- 자막 크기 설정 모달 -->
+    <div id="captionSizeModal" class="modalForm">
+        <div class="modalForm-content">
+            <span class="close" onclick="closeModal('captionSizeModal')">&times;</span>
+            <div class="modalTitle">자막 크기 설정</div>
+            <label>
+                <input type="radio" name="captionSize" value="small">
+                <span id="smallText">작은 글씨</span> 
+            </label>
+            <label>
+                <input type="radio" name="captionSize" value="medium" checked>
+                <span id="mediumText">중간 글씨</span> 
+            </label>
+            <label>
+                <input type="radio" name="captionSize" value="large"> 
+                <span id="largeText">큰 글씨</span>
+            </label>
+            <button class="saveBtn" onclick="saveCaptionSize()">저장</button>
         </div>
-        <div id="color_pinkandblack">
-            <input type="checkbox">핑크 & 검은색
-        </div>
-        <div id="color_yellowandblue">
-            <input type="checkbox">노란색 & 파란색
-        </div>
-        <button id="save">저장</button>
     </div>
-</div>
 
-<div class="container_6">
-
-    <div class="modal_6">
-        <nav class="nav_bar_2">
-            <!-- <a id="urg ">▶ 탈퇴</a> -->
-            <p id="unregister">OVER THE GLASS에서 탈퇴하시겠습니까?</p>
-        </nav>
-        <div>
-            <a href=""><input type="button" value="취소" id="unregister_ox"></a>
-            <a href=""><input type="button" value="확인" id="unregister_ox"></a>
-            <!-- <button href="# " id="unregister_1 ">취소</button>
-            <button href="# " id="unregister_1 ">확인</button> -->
+    <!-- 자막 색상 설정 모달 -->
+    <div id="captionColorModal" class="modalForm">
+        <div class="modalForm-content">
+            <span class="close" onclick="closeModal('captionColorModal')">&times;</span>
+            <div class="modalTitle">자막 색상 설정</div>
+            <label>
+                <input type="radio" name="captionColor" value="whiteOverBlack" checked>
+                <span id="whiteOverBlack">검정색 바탕에 흰색</span>
+            </label>
+            <label>
+                <input type="radio" name="captionColor" value="blackOverWhite">
+                <span id="blackOverWhite">흰색 바탕에 검은색</span>
+            </label>
+            <button class="saveBtn" onclick="saveCaptionColor()">저장</button>
         </div>
     </div>
 
     <script>
-        const openButton = document.querySelector('#modify_mypage_nickname');
-        const container = document.querySelector('.container_2');
-        const closeButton = document.querySelector('#save');
+        // 모달 열기
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "flex";
+        }
 
-        openButton.addEventListener('click', () => {
-            container.style.display = 'flex';
+        // 모달 닫기
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
 
-        });
+        // 닉네임 수정 저장
+        function saveNickname() {
+            const newNickname = document.getElementById("nicknameInput").value;
+            console.log(`nickname: ${newNickname}`)
+            // 백엔드로 닉네임 저장 요청을 보낼 수 있습니다.
+            // 백엔드 연동은 fetch() 또는 XMLHttpRequest 등을 사용하여 구현할 수 있습니다.
+            closeModal("nicknameModal");
+        }
 
-        closeButton.addEventListener('click', () => {
-            container.style.display = 'none';
+        // 자막 사용 여부 저장
+        function saveCaptionUse() {
+            const captionUse = document.querySelector('input[name="captionUse"]:checked').value;
+            console.log(`use: ${captionUse}`)
+            // 백엔드로 자막 사용 여부 저장 요청을 보낼 수 있습니다.
+            closeModal("captionUseModal");
+        }
 
-        });
+        // 자막 크기 설정 저장
+        function saveCaptionSize() {
+            const captionSize = document.querySelector('input[name="captionSize"]:checked').value;
+            console.log(`size: ${captionSize}`)
+            // 백엔드로 자막 크기 설정 저장 요청을 보낼 수 있습니다.
+            closeModal("captionSizeModal");
+        }
+
+        // 자막 색상 설정 저장
+        function saveCaptionColor() {
+            const captionColor = document.querySelector('input[name="captionColor"]:checked').value;
+            console.log(`size: ${captionColor}`)
+            // 백엔드로 자막 색상 설정 저장 요청을 보낼 수 있습니다.
+            closeModal("captionColorModal");
+        }
     </script>
-    <script>
-        const openButton2 = document.querySelector('#modify_mypage_subtitles_ox');
-        const container2 = document.querySelector('.container_3');
-        const closeButton2 = document.querySelector('#save');
-
-        openButton2.addEventListener('click', () => {
-            container2.style.display = 'flex';
-
-        });
-
-        closeButton2.addEventListener('click', () => {
-            container2.style.display = 'none';
-
-        });
-    </script>
-    <script>
-        const openButton3 = document.querySelector('#modify_mypage_subtitles_size');
-        const container3 = document.querySelector('.container_4');
-        const closeButton3 = document.querySelector('#save');
-
-        openButton3.addEventListener('click', () => {
-            container3.style.display = 'flex';
-
-        });
-
-        closeButton3.addEventListener('click', () => {
-            container3.style.display = 'none';
-
-        });
-    </script>
-    <script>
-        const openButton4 = document.querySelector('#modify_mypage_subtitles_color');
-        const container4 = document.querySelector('.container_5');
-        const closeButton4 = document.querySelector('#save');
-
-        openButton4.addEventListener('click', () => {
-            container4.style.display = 'flex';
-
-        });
-
-        closeButton4.addEventListener('click', () => {
-            container4.style.display = 'none';
-
-        });
-    </script>
-    <script>
-        const openButton5 = document.querySelector('#modify_mypage_unregister');
-        const container5 = document.querySelector('.container_6');
-        const closeButton5 = document.querySelector('#save');
-
-        openButton5.addEventListener('click', () => {
-            container5.style.display = 'flex';
-
-        });
-
-        closeButton5.addEventListener('click', () => {
-            container5.style.display = 'none';
-
-        });
-    </script>
-    {% endblock %}
+{% endblock %}

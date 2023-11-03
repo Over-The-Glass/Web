@@ -23,7 +23,8 @@ app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png'}
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+# db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
 
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
@@ -265,7 +266,7 @@ def signup_process():
         print(username, email, pwd1, pwd2, sub)
         
         # 모든 데이터 읽어오기
-        select_query = "select * from users"
+        select_query = "select * from user"
         with db.cursor() as cursor:
             cursor.execute(select_query)
             result = cursor.fetchall()
