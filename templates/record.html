@@ -33,9 +33,9 @@
         <span class="material-symbols-outlined">forum</span>
         2023-08-15 오전 11:50 
     </button>
+</div>
 
-
-    <!--    
+<!--    
     <a><input type="button" value="삭제하기" id="delete"></a>
 </div>
 
@@ -55,25 +55,25 @@
 
 
 
-    <script>
-        const openButton2 = document.querySelector('#delete');
-        const container2 = document.querySelector('.container_8');
-        const closeButton2 = document.querySelector('#save');
+<script>
+    const openButton2 = document.querySelector('#delete');
+    const container2 = document.querySelector('.container_8');
+    const closeButton2 = document.querySelector('#save');
 
-        openButton2.addEventListener('click', () => {
-            container2.style.display = 'flex';
+    openButton2.addEventListener('click', () => {
+        container2.style.display = 'flex';
 
-        });
+    });
 
-        closeButton2.addEventListener('click', () => {
-            container2.style.display = 'none';
+    closeButton2.addEventListener('click', () => {
+        container2.style.display = 'none';
 
-        });
-    </script>
+    });
+</script>
 
-    <script>
-        function goToHistoryPage() {
-            location.href = "{{ url_for('history_page')}}";
-        }
-    </script>
-    {% endblock %}
+<script>
+    function goToHistoryPage() {
+        location.href = "{{ url_for('history_page')}}";
+    }
+</script>
+{% endblock %}
