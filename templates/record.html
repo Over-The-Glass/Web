@@ -35,6 +35,7 @@
     </button>
 
 
+    <!--    
     <a><input type="button" value="삭제하기" id="delete"></a>
 </div>
 
@@ -46,33 +47,33 @@
         <div>
             <a href=""><input type="button" value="취소" id="delete_ox"></a>
             <a href=""><input type="button" value="확인" id="delete_ox"></a>
-            <!-- <button href="#" id="unregister_1">취소</button>
-                <button href="#" id="unregister_1">확인</button> -->
+            
         </div>
     </div>
 </div>
+-->
 
 
 
-<script>
-    const openButton2 = document.querySelector('#delete');
-    const container2 = document.querySelector('.container_8');
-    const closeButton2 = document.querySelector('#save');
+    <script>
+        const openButton2 = document.querySelector('#delete');
+        const container2 = document.querySelector('.container_8');
+        const closeButton2 = document.querySelector('#save');
 
-    openButton2.addEventListener('click', () => {
-        container2.style.display = 'flex';
+        openButton2.addEventListener('click', () => {
+            container2.style.display = 'flex';
 
-    });
+        });
 
-    closeButton2.addEventListener('click', () => {
-        container2.style.display = 'none';
+        closeButton2.addEventListener('click', () => {
+            container2.style.display = 'none';
 
-    });
-</script>
+        });
+    </script>
 
-<script>
-    function goToHistoryPage() {
-        location.href = "{{ url_for('history_page')}}";
-    }
-</script>
-{% endblock %}
+    <script>
+        function goToHistoryPage() {
+            location.href = "{{ url_for('history_page')}}";
+        }
+    </script>
+    {% endblock %}
