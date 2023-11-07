@@ -23,11 +23,7 @@ app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png'}
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-<<<<<<< HEAD
-# db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
-=======
->>>>>>> 9b2f273367c620aa6e63c58957b10c701c9737fb
-db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
 
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
