@@ -6,7 +6,33 @@
         }
 
         function conversationHistory() {
-            location.href = "{{ url_for('record')}}";
+            //location.href = "{{ url_for('record')}}";
+            var user_pkey = "{{ user_pkey }}";  // user_pkey 변수를 가져옴
+            location.href = "{{ url_for('record', user_pkey=user_pkey)}}";
+            /*
+            fetch(url, {
+                method: 'POST',  // POST 요청을 사용하거나 GET 요청을 사용할 수 있음
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(responseData => {
+                // API 응답을 처리하고 필요한 작업 수행
+                console.log(responseData);
+                // 이후 작업: 대화 기록 페이지로 이동 또는 렌더링
+                //location.href = "{{ url_for('record')}}";
+                if (responseData.chatroom_info) {
+                    //var chatroomInfo = responseData.chatroom_info;
+                    //var chatroomInfoHtml = ''
+                    console.log("chatroom_info delivered")
+                }
+            })
+            .catch(error => {
+                console.error('API 요청 중 오류 발생:', error);
+            });
+            */
         }
 
         function goToVideoMode() {
@@ -42,13 +68,6 @@
             var welcomeMessage = document.getElementById("welcome-message");
             var token = getCookie("token"); // 토큰 값 가져오기
             console.log("token", token)
-            if (token) {
-                // 토큰이 존재할 경우 처리할 내용
-                // 예: 토큰을 해독하여 사용자 정보 가져오기 등
-                welcomeMessage.textContent = "토큰을 확인했습니다.";
-            } else {
-                welcomeMessage.textContent = "토큰이 없습니다.";
-            }
         });
     </script>
 {% endblock %}

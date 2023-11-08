@@ -23,7 +23,9 @@ app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png'}
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='2023', db='overtheglass')
+# db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+# db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
 
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
@@ -343,13 +345,14 @@ def menu(payload):
     if payload:
         #print("menu(payload), @login_required",payload)
         name = payload.get('name')
+        user_pkey = payload.get('user_pkey')
         subtitle = payload.get('subtitle')
         if subtitle == 0:
             #print("menu(payload), @login_required",name, subtitle)
             return render_template('nonmember_menu.html', name=name)
         else:
             #print("menu(payload), @login_required",name, subtitle)
-            return render_template('menu.html', name=name)
+            return render_template('menu.html', name=name, user_pkey=user_pkey)
     else:
         return "Error", 401
 
@@ -363,10 +366,43 @@ def logout():
     response.delete_cookie('token')  # 토큰을 쿠키에서 제거
     return response
 
-@app.route('/record')
-def record():
-    return render_template('record.html')
 
+@app.route('/record', methods=['GET'])
+def record():
+    user_pkey = request.args.get('user_pkey')
+    print("2. app.py /record record 함수 user_pkey=", user_pkey)
+    with db.cursor() as cursor:
+        query = "SELECT chatroom_pkey, created_at FROM chatroom WHERE user_fkey = %s" 
+        cursor.execute(query, (user_pkey,))
+        chatroom_info = cursor.fetchall()
+        print("3. chatroom_info", chatroom_info)
+        return render_template('record.html', chatroom_info=chatroom_info) 
+
+"""
+@app.route('/record', methods=['POST'])
+def record_process():
+    data = request.get_json()
+    user_pkey = data.get('user_pkey')
+    
+    chatroom_info = get_chatroom_info(user_pkey)
+    
+    if chatroom_info:
+        return jsonify({'message':'chatroom Info 있다.', 'chatroom_info':chatroom_info}), 200
+    else:
+        return jsonify({'error':'No chatroom Info'}), 404
+
+
+# 사용자PK를 이용해 chatroom_info 반환
+def get_chatroom_info(user_pkey):
+    
+    with db.cursor() as cursor:
+        query = "SELECT chatroom_pkey, created_at FROM chatroom WHERE user_fkey = %s" 
+        cursor.execute(query, (user_pkey,))
+        chatroom_info = cursor.fetchall()
+        
+        return chatroom_info 
+"""
+    
 @app.route('/history_page')
 def history_page():
     return render_template('history_page.html')
