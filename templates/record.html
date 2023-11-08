@@ -15,12 +15,14 @@
 <div class="coversation_history_container">
     <p style="text-align: left; margin-right: 180px; font-size: larger; font-weight: bold;">지난 대화 기록</p>
 
-    {% for chatroom in chatrrom_info %}
+
+    {% for chatroom in chatroom_info %}
     <button id="history_button" onclick="goToHistoryPage()">
         <span class="material-symbols-outlined">forum</span>
-        <span> Chatroom ID: {{ chatroom.chatroom_pkey }} </span>
-        <span> Created At: {{ chatroom.created_at }} </span>
+        <span> Chatroom no.{{ chatroom[0] }} </span>
+        <span> &nbsp; {{ chatroom[1] }}</span>
     </button>
+
     {% endfor %}
 
 
@@ -48,23 +50,9 @@
         2023-08-15 오전 11:50 
     </button> 
     -->
-
-    <a><input type="button" value="삭제하기" id="delete"></a>
 </div>
 
-<div class="container_8">
-    <div class="modal_6">
-        <nav class="nav_bar_2">
-            <p id="history_delete">정말 삭제하시겠습니까?</p>
-        </nav>
-        <div>
-            <a href=""><input type="button" value="취소" id="delete_ox"></a>
-            <a href=""><input type="button" value="확인" id="delete_ox"></a>
-            <!-- <button href="#" id="unregister_1">취소</button>
-                <button href="#" id="unregister_1">확인</button> -->
-        </div>
-    </div>
-</div>
+
 
 
 

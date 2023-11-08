@@ -267,7 +267,7 @@ def signup_process():
         print(username, email, pwd1, pwd2, sub)
         
         # 모든 데이터 읽어오기
-        select_query = "select * from users"
+        select_query = "select * from user"
         with db.cursor() as cursor:
             cursor.execute(select_query)
             result = cursor.fetchall()
@@ -366,27 +366,43 @@ def logout():
     response.delete_cookie('token')  # 토큰을 쿠키에서 제거
     return response
 
+
 @app.route('/record', methods=['GET'])
 def record():
-    return render_template('record.html')
+    user_pkey = request.args.get('user_pkey')
+    print("2. app.py /record record 함수 user_pkey=", user_pkey)
+    with db.cursor() as cursor:
+        query = "SELECT chatroom_pkey, created_at FROM chatroom WHERE user_fkey = %s" 
+        cursor.execute(query, (user_pkey,))
+        chatroom_info = cursor.fetchall()
+        print("3. chatroom_info", chatroom_info)
+        return render_template('record.html', chatroom_info=chatroom_info) 
 
+"""
 @app.route('/record', methods=['POST'])
 def record_process():
     data = request.get_json()
     user_pkey = data.get('user_pkey')
     
+    chatroom_info = get_chatroom_info(user_pkey)
+    
+    if chatroom_info:
+        return jsonify({'message':'chatroom Info 있다.', 'chatroom_info':chatroom_info}), 200
+    else:
+        return jsonify({'error':'No chatroom Info'}), 404
+
+
+# 사용자PK를 이용해 chatroom_info 반환
+def get_chatroom_info(user_pkey):
+    
     with db.cursor() as cursor:
         query = "SELECT chatroom_pkey, created_at FROM chatroom WHERE user_fkey = %s" 
         cursor.execute(query, (user_pkey,))
         chatroom_info = cursor.fetchall()
+        
+        return chatroom_info 
+"""
     
-        if chatroom_info:
-            return jsonify({'message':'chatroom Info 있다.', 'chatroom_info':chatroom_info}), 200
-        else:
-            return jsonify({'error':'No chatroom Info'}), 404
-    
-    return render_template('record.html')
-
 @app.route('/history_page')
 def history_page():
     return render_template('history_page.html')
@@ -394,6 +410,22 @@ def history_page():
 @app.route('/setting')
 def settings():
     return render_template('settings.html')
+
+@app.route('/project_intro')
+def project_intro():
+    return render_template('project_intro.html')
+
+@app.route('/how_to_use')
+def how_to_use():
+    return render_template('how_to_use.html')
+
+@app.route('/project_intro_nosubtitle')
+def project_intro_nosubtitle():
+    return render_template('project_intro_nosubtitle.html')
+
+@app.route('/how_to_use_nosubtitle')
+def how_to_use_nosubtitle():
+    return render_template('how_to_use_nosubtitle.html')
 
 @app.route('/speaker_info')
 def speaker_info():

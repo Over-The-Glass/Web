@@ -1,0 +1,38 @@
+{% extends "base-no-subtitle.html" %} {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/settings-style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/projectintro-style.css') }}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> {% endblock %}{% block content %}
+<br>
+<p id="title">난청인을 위한 웹 서비스 OVER THE GLASS</p>
+<br>
+<hr>
+<br>
+<p id="text1">음성-자막 변환 서비스 OVER THE GLASS는<br> 청각에 어려움을 겪는 모든 사람들에게 자유로운 소통을 제공합니다.</p>
+<br><br><br>
+<span class="material-symbols-outlined" style="color: black; font-size: 80px;">photo_camera</span>
+
+<p id="text2">대화 참여자들의 얼굴 사진을 확보해<br> 얼굴 식별과 입 모양 특징점 추출을 통해서<br> 특정 기간 동안 이전 프레임과 현재 프레임의 입 모양 길이 변화를<br> 계산하여 지속적인 입 움직임이 감지될 경우 발화자로 판단합니다.</p>
+
+<br><br><br>
+<span class="material-symbols-outlined" style="color: black; font-size: 80px;">description</span>
+
+<p id="text2">실시간으로 파악된 발화자 이름과 음성인식을 통해 받아온 텍스트를<br>다시 볼 수 있습니다.</p>
+
+<br><br><br>
+<div id="text3">
+    <div>
+        <span class="material-symbols-outlined" style="color: black; font-size: 80px;">eyeglasses</span>
+        <p id="text2">AR글래스는 가벼워서 휴대성이<br>뛰어납니다.<br>개인이 소지하여 원하는 곳에서<br>자유롭게 음성-자막 변환이<br>가능합니다. </p>
+    </div>
+
+    <div>
+        <span class="material-symbols-outlined" style="color: black; font-size: 80px;">sentiment_satisfied</span>
+        <p id="text2">스마트폰 기기의 화면이 아닌<br>상대방의 눈을 보며 대화하여<br>비언어적인 요소에도 집중하며<br>대화의 참여도를 높일 수 있습니다.</p>
+    </div>
+
+</div>
+
+
+
+{% endblock %}
