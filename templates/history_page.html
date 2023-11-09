@@ -7,14 +7,12 @@
         {% for text in chatroom_texts %}
         <div class="conversation">
             <span class="message sent">
-                &nbsp; <span style="color:white">{{ text[0] }}:</span>
-                <!--<span class="profile"></span>-->
+                &nbsp; <span>{{ text[0] }}:</span>
                 &nbsp; <p>{{ text[1] }}<p>
             </span> 
         </div>
+        {% endfor %}
+    {% endif %}
     </div>
 </div>
-
-<script>
-</script>
 {% endblock %}
