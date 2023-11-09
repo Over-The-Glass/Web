@@ -377,23 +377,20 @@ def record():
         chatroom_info = cursor.fetchall()
         #print("3. chatroom_info", chatroom_info)
         return render_template('record.html', chatroom_info=chatroom_info) 
-    
-    
+
 @app.route('/history_page', methods=['GET'])
 def history_page():
     chatroom_pkey = request.args.get('chatroom')
-    
+
     with db.cursor() as cursor:
         query = "SELECT speaker, text, created_at FROM chatroom_text WHERE chatroom_fkey = %s"
         cursor.execute(query, (chatroom_pkey,))
         chatroom_texts = cursor.fetchall()
-        
         query = "SELECT created_at FROM chatroom WHERE chatroom_pkey = %s"
         cursor.execute(query, (chatroom_pkey,))
         chatroom_time = cursor.fetchone()[0]
         print(chatroom_time, type(chatroom_time))
-        
-    return render_template('history_page.html', chatroom_texts=chatroom_texts, chatroom_time=chatroom_time)
+        return render_template('history_page.html', chatroom_texts=chatroom_texts, chatroom_time=chatroom_time)
 
 @app.route('/setting')
 def settings():
