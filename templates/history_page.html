@@ -2,7 +2,6 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/historypage-style.css') }}"> {% endblock %} {% block content %}
 
 <div>
-    
     <div class="history_date_text">{{ chatroom_time }}</div>
     {% if chatroom_texts %}
         {% for text in chatroom_texts %}
@@ -13,12 +12,7 @@
                 &nbsp; <p>{{ text[1] }}<p>
             </span> 
         </div>
-        {% endfor %}
-    {% else %}
-        
-    {% endif %}
-
-
+    </div>
 </div>
 
 <script>
