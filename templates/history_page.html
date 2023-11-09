@@ -2,28 +2,16 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/historypage-style.css') }}"> {% endblock %} {% block content %}
 
 <div>
-    <div class="history_date_text">2023-08-19 오전 9:30</div>
-
+    <div class="history_date_text">{{ chatroom_time }}</div>
+    {% if chatroom_texts %} {% for text in chatroom_texts %}
     <div class="conversation">
-        <div class="message sent">
-            <p id="text">메시지 1</p>
-        </div>
-
-        <div class="message sent">
-            <p id="text">메시지 2</p>
-        </div>
-
-        <div class="message sent">
-            <p id="text">메시지 3</p>
-        </div>
-
-        <div class="message sent">
-            <p id="text">메시지 4</p>
-        </div>
-
-        <div class="message sent">
-            <p id="text">메시지 5</p>
-        </div>
+        <span class="message sent">
+                &nbsp; <span>{{ text[0] }}:</span> &nbsp;
+        <p>{{ text[1] }}
+            <p>
+                </span>
     </div>
+    {% endfor %} {% endif %}
+</div>
 </div>
 {% endblock %}
