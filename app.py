@@ -369,43 +369,28 @@ def logout():
 
 @app.route('/record', methods=['GET'])
 def record():
-    user_pkey = request.args.get('user_pkey')
-    print("2. app.py /record record 함수 user_pkey=", user_pkey)
+    user_pkey = request.args.get('user')
+    #print("2. app.py /record record 함수 user_pkey=", user_pkey)
     with db.cursor() as cursor:
         query = "SELECT chatroom_pkey, created_at FROM chatroom WHERE user_fkey = %s" 
         cursor.execute(query, (user_pkey,))
         chatroom_info = cursor.fetchall()
-        print("3. chatroom_info", chatroom_info)
+        #print("3. chatroom_info", chatroom_info)
         return render_template('record.html', chatroom_info=chatroom_info) 
 
-"""
-@app.route('/record', methods=['POST'])
-def record_process():
-    data = request.get_json()
-    user_pkey = data.get('user_pkey')
-    
-    chatroom_info = get_chatroom_info(user_pkey)
-    
-    if chatroom_info:
-        return jsonify({'message':'chatroom Info 있다.', 'chatroom_info':chatroom_info}), 200
-    else:
-        return jsonify({'error':'No chatroom Info'}), 404
-
-
-# 사용자PK를 이용해 chatroom_info 반환
-def get_chatroom_info(user_pkey):
-    
-    with db.cursor() as cursor:
-        query = "SELECT chatroom_pkey, created_at FROM chatroom WHERE user_fkey = %s" 
-        cursor.execute(query, (user_pkey,))
-        chatroom_info = cursor.fetchall()
-        
-        return chatroom_info 
-"""
-    
-@app.route('/history_page')
+@app.route('/history_page', methods=['GET'])
 def history_page():
-    return render_template('history_page.html')
+    chatroom_pkey = request.args.get('chatroom')
+
+    with db.cursor() as cursor:
+        query = "SELECT speaker, text, created_at FROM chatroom_text WHERE chatroom_fkey = %s"
+        cursor.execute(query, (chatroom_pkey,))
+        chatroom_texts = cursor.fetchall()
+        query = "SELECT created_at FROM chatroom WHERE chatroom_pkey = %s"
+        cursor.execute(query, (chatroom_pkey,))
+        chatroom_time = cursor.fetchone()[0]
+        print(chatroom_time, type(chatroom_time))
+        return render_template('history_page.html', chatroom_texts=chatroom_texts, chatroom_time=chatroom_time)
 
 @app.route('/setting')
 def settings():

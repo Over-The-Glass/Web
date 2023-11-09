@@ -16,39 +16,20 @@
     <p style="text-align: left; margin-right: 180px; font-size: larger; font-weight: bold;">지난 대화 기록</p>
 
 
-    {% for chatroom in chatroom_info %}
-    <button id="history_button" onclick="goToHistoryPage()">
-        <span class="material-symbols-outlined">forum</span>
-        <span> Chatroom no.{{ chatroom[0] }} </span>
-        <span> &nbsp; {{ chatroom[1] }}</span>
-    </button> {% endfor %}
-
-
-
-    <!-- <input type="checkbox"> -->
-    <!--
-    <button id="history_button" onclick="goToHistoryPage()">
+    {% if chatroom_info %} {% for chatroom in chatroom_info %}
+    <button id="history_button" onclick="goToHistoryPage('{{ chatroom[0] }}')">
             <span class="material-symbols-outlined">forum</span>
-            2023-08-19 오전 9:30
-    </button>
-    -->
-
-    <!-- <input type="checkbox"> -->
-    <!--
-    <button id="history_button" onclick="goToHistoryPage()">
-            <span class="material-symbols-outlined">forum</span>
-            2023-08-18 오후 7:00
-    </button>
-    -->
-
-    <!-- <input type="checkbox"> -->
-    <!--
-    <button id="history_button" onclick="goToHistoryPage()">
-        <span class="material-symbols-outlined">forum</span>
-        2023-08-15 오전 11:50 
-    </button> 
-    -->
+             Chatroom no.<span>{{ chatroom[0] }} </span>
+            <span> &nbsp; {{ chatroom[1] }}</span>
+    </button> {% endfor %} {% else %}
+    <button id="history_button">
+                대화 기록이 없습니다
+    </button> {% endif %}
 </div>
+
+
+
+
 
 
 
@@ -71,8 +52,8 @@
 </script>
 
 <script>
-    function goToHistoryPage() {
-        location.href = "{{ url_for('history_page')}}";
+    function goToHistoryPage(chatroom_pk) {
+        window.location.href = "/history_page?chatroom=" + chatroom_pk;
     }
 </script>
 {% endblock %}
