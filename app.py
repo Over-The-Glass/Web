@@ -390,7 +390,7 @@ def history_page():
         cursor.execute(query, (chatroom_pkey,))
         chatroom_time = cursor.fetchone()[0]
         print(chatroom_time, type(chatroom_time))
-        return render_template('history_page.html', chatroom_texts=chatroom_texts, chatroom_time=chatroom_time)
+    return render_template('history_page.html', chatroom_texts=chatroom_texts, chatroom_time=chatroom_time)
 
 @app.route('/setting')
 def settings():
