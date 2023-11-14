@@ -4,15 +4,16 @@
 
 <div>
     <div class="history_date_text">{{ chatroom_time }}</div>
-    {% if chatroom_texts %} {% for text in chatroom_texts %}
-    <div class="conversation">
-        <span class="message sent">
-                &nbsp; <span>{{ text[0] }}:</span> &nbsp;
-        <p>{{ text[1] }}
-            <p>
-                </span>
-    </div>
-    {% endfor %} {% endif %}
+    {% if chatroom_texts %}
+        {% for text in chatroom_texts %}
+        <div class="conversation">
+            <span class="message sent">
+                &nbsp; <span>{{ text[0] }}:</span>
+                &nbsp; <p>{{ text[1] }}<p>
+            </span> 
+        </div>
+        {% endfor %}
+    {% endif %}
 </div>
-
+</div>
 {% endblock %}
