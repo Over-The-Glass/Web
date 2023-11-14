@@ -2,10 +2,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/settings-style.css') }}">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /> {% endblock %} {% block content %}
-<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" /> -->
-<!-- <nav id="nav_1">
-        <h3>지난 대화 기록</h3>
-    </nav> -->
+
 
 <div class="date_modal">
     <a href=""><input id="date" type="date" value="xxx" min="2023-01-01" max="2099-12-31" style="color: gray;">
@@ -15,48 +12,16 @@
 <div class="coversation_history_container">
     <p style="text-align: left; margin-right: 180px; font-size: larger; font-weight: bold;">지난 대화 기록</p>
 
-    {% if chatroom_info %}
-        {% for chatroom in chatroom_info %}
-        <button id="history_button" onclick="goToHistoryPage('{{ chatroom[0] }}')">
+    {% if chatroom_info %} {% for chatroom in chatroom_info %}
+    <button id="history_button" onclick="goToHistoryPage('{{ chatroom[0] }}')">
             <span class="material-symbols-outlined">forum</span>
              Chatroom no.<span>{{ chatroom[0] }} </span>
             <span> &nbsp; {{ chatroom[1] }}</span>
-        </button>
-        {% endfor %}
-    {% else  %}
-        <button id="history_button" >
+        </button> {% endfor %} {% else %}
+    <button id="history_button">
                 대화 기록이 없습니다
-        </button>
-    {% endif %}
-
-
-
-
-    <!-- <input type="checkbox"> -->
-    <!--
-    <button id="history_button" onclick="goToHistoryPage()">
-            <span class="material-symbols-outlined">forum</span>
-            2023-08-19 오전 9:30
-    </button>
-    -->
-
-    <!-- <input type="checkbox"> -->
-    <!--
-    <button id="history_button" onclick="goToHistoryPage()">
-            <span class="material-symbols-outlined">forum</span>
-            2023-08-18 오후 7:00
-    </button>
-    -->
-
-    <!-- <input type="checkbox"> -->
-    <!--
-    <button id="history_button" onclick="goToHistoryPage()">
-        <span class="material-symbols-outlined">forum</span>
-        2023-08-15 오전 11:50 
-    </button> 
-    -->
+        </button> {% endif %}
 </div>
-
 
 <script>
     const openButton2 = document.querySelector('#delete');
@@ -72,7 +37,8 @@
         container2.style.display = 'none';
 
     });
-
+</script>
+<script>
     function goToHistoryPage(chatroom_pk) {
         window.location.href = "/history_page?chatroom=" + chatroom_pk;
     }
