@@ -1,54 +1,64 @@
-{% extends "base.html" %}
-{% block head %}
-    <script>
-        function goToConversationMode() {
-            location.href = "{{ url_for('chatroom') }}";
-        }
+{% extends "base.html" %} {% block head %}
+<script>
+    function goToConversationMode() {
+        location.href = "{{ url_for('chatroom') }}";
+    }
 
-        function conversationHistory() {
-            location.href = "{{ url_for('record')}}";
-        }
-
-        function goToVideoMode() {
-            location.href = "{{ url_for('video_mode')}}";
-        }
-    </script>
-{% endblock %}
-{% block profile %}
-    {% if name %}
-        {{ name }} 님, 환영합니다!
-    {% else %}
-        로그인을 해주세요
-    {% endif %}
-{% endblock %}
-{% block content %}
-    <img id="coversation_mode" src="{{ url_for('static', filename='src/img/conversation_mode.png')}}" alt="대화모드" onclick="goToConversationMode()">
-    <br><br>
-    <img id="conversation_history" src="{{ url_for('static', filename='src/img/conversation_history.png')}}" alt="대화기록" onclick="conversationHistory()">
-    <br><br>
-    <img id="video_mode" src="{{ url_for('static', filename='src/img/video_mode.png')}}" alt="영상시청모드" onclick="goToVideoMode()">
-    <script>
-        function getCookie(name) {
-            console.log("name", name)
-            var value = "; " + document.cookie;
-            console.log("value", value)
-            var parts = value.split("; " + name + "=");
-            if (parts.length === 2) {
-                return parts.pop().split(";").shift();
+    function conversationHistory() {
+        //location.href = "{{ url_for('record')}}";
+        var user_pkey = "{{ user_pkey }}"; // user_pkey 변수를 가져옴
+        location.href = "{{ url_for('record', user=user_pkey)}}";
+        /*
+        fetch(url, {
+            method: 'POST',  // POST 요청을 사용하거나 GET 요청을 사용할 수 있음
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(responseData => {
+            // API 응답을 처리하고 필요한 작업 수행
+            console.log(responseData);
+            // 이후 작업: 대화 기록 페이지로 이동 또는 렌더링
+            //location.href = "{{ url_for('record')}}";
+            if (responseData.chatroom_info) {
+                //var chatroomInfo = responseData.chatroom_info;
+                //var chatroomInfoHtml = ''
+                console.log("chatroom_info delivered")
             }
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            var welcomeMessage = document.getElementById("welcome-message");
-            var token = getCookie("token"); // 토큰 값 가져오기
-            console.log("token", token)
-            if (token) {
-                // 토큰이 존재할 경우 처리할 내용
-                // 예: 토큰을 해독하여 사용자 정보 가져오기 등
-                welcomeMessage.textContent = "토큰을 확인했습니다.";
-            } else {
-                welcomeMessage.textContent = "토큰이 없습니다.";
-            }
+        })
+        .catch(error => {
+            console.error('API 요청 중 오류 발생:', error);
         });
-    </script>
+        */
+    }
+
+    function goToVideoMode() {
+        location.href = "{{ url_for('video_mode')}}";
+    }
+</script>
+{% endblock %} {% block profile %} {% if name %} {{ name }} 님, 환영합니다! {% else %} 로그인을 해주세요 {% endif %} {% endblock %} {% block content %}
+<img id="coversation_mode" src="{{ url_for('static', filename='src/img/conversation_mode.png')}}" alt="대화모드" onclick="goToConversationMode()">
+<br><br>
+<img id="conversation_history" src="{{ url_for('static', filename='src/img/conversation_history.png')}}" alt="대화기록" onclick="conversationHistory()">
+<br><br>
+<img id="video_mode" src="{{ url_for('static', filename='src/img/video_mode.png')}}" alt="영상시청모드" onclick="goToVideoMode()">
+<script>
+    function getCookie(name) {
+        console.log("name", name)
+        var value = "; " + document.cookie;
+        console.log("value", value)
+        var parts = value.split("; " + name + "=");
+        if (parts.length === 2) {
+            return parts.pop().split(";").shift();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var welcomeMessage = document.getElementById("welcome-message");
+        var token = getCookie("token"); // 토큰 값 가져오기
+        console.log("token", token)
+    });
+</script>
 {% endblock %}

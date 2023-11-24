@@ -346,13 +346,14 @@ def menu(payload):
     if payload:
         #print("menu(payload), @login_required",payload)
         name = payload.get('name')
+        user_pkey = payload.get('user_pkey')
         subtitle = payload.get('subtitle')
         if subtitle == 0:
             #print("menu(payload), @login_required",name, subtitle)
             return render_template('nonmember_menu.html', name=name)
         else:
             #print("menu(payload), @login_required",name, subtitle)
-            return render_template('menu.html', name=name)
+            return render_template('menu.html', name=name, user_pkey=user_pkey)
     else:
         return "Error", 401
 
@@ -366,13 +367,31 @@ def logout():
     response.delete_cookie('token')  # 토큰을 쿠키에서 제거
     return response
 
-@app.route('/record')
-def record():
-    return render_template('record.html')
 
-@app.route('/history_page')
+@app.route('/record', methods=['GET'])
+def record():
+    user_pkey = request.args.get('user')
+    #print("2. app.py /record record 함수 user_pkey=", user_pkey)
+    with db.cursor() as cursor:
+        query = "SELECT chatroom_pkey, created_at FROM chatroom WHERE user_fkey = %s" 
+        cursor.execute(query, (user_pkey,))
+        chatroom_info = cursor.fetchall()
+        #print("3. chatroom_info", chatroom_info)
+        return render_template('record.html', chatroom_info=chatroom_info) 
+
+@app.route('/history_page', methods=['GET'])
 def history_page():
-    return render_template('history_page.html')
+    chatroom_pkey = request.args.get('chatroom')
+
+    with db.cursor() as cursor:
+        query = "SELECT speaker, text, created_at FROM chatroom_text WHERE chatroom_fkey = %s"
+        cursor.execute(query, (chatroom_pkey,))
+        chatroom_texts = cursor.fetchall()
+        query = "SELECT created_at FROM chatroom WHERE chatroom_pkey = %s"
+        cursor.execute(query, (chatroom_pkey,))
+        chatroom_time = cursor.fetchone()[0]
+        print(chatroom_time, type(chatroom_time))
+    return render_template('history_page.html', chatroom_texts=chatroom_texts, chatroom_time=chatroom_time)
 
 @app.route('/setting')
 def settings():
