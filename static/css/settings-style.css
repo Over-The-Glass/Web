@@ -5,8 +5,10 @@
     left: 0;
     width: 100%;
     height: 100%;
-    justify-content: center; /* 수평 가운데 정렬 */
-    align-items: center; /* 수직 가운데 정렬 */
+    justify-content: center;
+    /* 수평 가운데 정렬 */
+    align-items: center;
+    /* 수직 가운데 정렬 */
 }
 
 .modalForm-content {
@@ -109,3 +111,46 @@
     background-color: black;
 }
 
+.date_modal {
+    border-right: none;
+    border-left: none;
+    border-top: none;
+    background: #7286D3;
+    display: inline-block;
+    margin-top: 20px;
+    /* max-width: 80%; */
+    /* row-gap: 15px; */
+    width: 325px;
+    height: 40px;
+    border-radius: 80px;
+}
+
+#date {
+    margin-top: 5px;
+    background-color: #ffffff;
+    border-radius: 50px;
+    border: #ffffff;
+    width: 315px;
+    height: 30px;
+    display: inline-block;
+    justify-content: center;
+}
+
+#history_button {
+    width: 315px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 5px;
+    background: #FFF8B5;
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
+    border-left: none;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#history_button:hover {
+    background-color: #fff59a;
+}

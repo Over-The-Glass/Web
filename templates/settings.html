@@ -41,15 +41,15 @@
             <span class="close" onclick="closeModal('captionSizeModal')">&times;</span>
             <div class="modalTitle">자막 크기 설정</div>
             <label>
-                <input type="radio" name="captionSize" value=14>
+                <input type="radio" name="captionSize" value="small">
                 <span id="smallText">작은 글씨</span> 
             </label>
             <label>
-                <input type="radio" name="captionSize" value=18 checked>
+                <input type="radio" name="captionSize" value="medium" checked>
                 <span id="mediumText">중간 글씨</span> 
             </label>
             <label>
-                <input type="radio" name="captionSize" value=22> 
+                <input type="radio" name="captionSize" value="large"> 
                 <span id="largeText">큰 글씨</span>
             </label>
             <button class="saveBtn" onclick="saveCaptionSize()">저장</button>
@@ -116,19 +116,14 @@
         // 자막 색상 설정 저장
         function saveCaptionColor() {
             const captionColor = document.querySelector('input[name="captionColor"]:checked').value;
-            if(captionColor === "blackOverWhite"){
 
-            }
-            else{
-
-            }
             // Unity로 메시지 전송
             var jsonData = {
                 flag: "textColor",
-                text: black,
-                background: white
+                color: captionColor
             };
             Unity.call(JSON.stringify(jsonData));
+
             // 백엔드로 자막 색상 설정 저장 요청을 보낼 수 있습니다.
             closeModal("captionColorModal");
         }
