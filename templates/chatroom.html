@@ -56,13 +56,13 @@
     function conversation_button() {
         if (conversationBtn.innerHTML == "대화모드 시작") {
             var jsonData = {
-                flag: "started conversation mode"
+                flag: "activate camera - conversation mode"
             };
             Unity.call(JSON.stringify(jsonData));
             conversationBtn.innerHTML = "대화모드 종료";
         } else if (conversationBtn.innerHTML == "대화모드 종료") {
             var jsonData = {
-                flag: "ended conversation mode"
+                flag: "deactivate camera"
             };
             Unity.call(JSON.stringify(jsonData));
             debugLog.innerHTML =
@@ -81,7 +81,7 @@
         const positionX = data.positionX;
         const positionY = data.positionY;
         var jsonData = {
-            flag: "in conversation mode",
+            flag: "show subtitle",
             change: "speaker position",
             speaker: speakerName,
             positionX: positionX,
@@ -110,7 +110,7 @@
                 });
             outputTextElement.innerHTML = speakerName + "," + said;
             var jsonData = {
-                flag: 'in conversation mode',
+                flag: 'show subtitle',
                 change: 'subtitle',
                 speaker: speakerName,
                 subtitle: said
@@ -145,7 +145,7 @@
     // beforeunload 이벤트 핸들러 추가 (페이지 종료 시 실행)
     window.addEventListener('beforeunload', (e) => {
         // 대화방 종료 버튼을 누르지 않았을 경우
-        if (flag === "in conversation mode") {
+        if (flag === "show subtitle") {
             e.preventDefault();
             e.returnValue = ''; // 빈 문자열을 할당하여 알림 표시
 

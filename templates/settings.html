@@ -87,7 +87,6 @@
         // 닉네임 수정 저장
         function saveNickname() {
             const newNickname = document.getElementById("nicknameInput").value;
-            console.log(`nickname: ${newNickname}`)
             // 백엔드로 닉네임 저장 요청을 보낼 수 있습니다.
             // 백엔드 연동은 fetch() 또는 XMLHttpRequest 등을 사용하여 구현할 수 있습니다.
             closeModal("nicknameModal");
@@ -96,7 +95,6 @@
         // 자막 사용 여부 저장
         function saveCaptionUse() {
             const captionUse = document.querySelector('input[name="captionUse"]:checked').value;
-            console.log(`use: ${captionUse}`)
             // 백엔드로 자막 사용 여부 저장 요청을 보낼 수 있습니다.
             closeModal("captionUseModal");
         }
@@ -104,15 +102,28 @@
         // 자막 크기 설정 저장
         function saveCaptionSize() {
             const captionSize = document.querySelector('input[name="captionSize"]:checked').value;
-            console.log(`size: ${captionSize}`)
+            // Unity로 메시지 전송
+            var jsonData = {
+                flag: "textSize",
+                size: captionSize
+            };
+            Unity.call(JSON.stringify(jsonData));
             // 백엔드로 자막 크기 설정 저장 요청을 보낼 수 있습니다.
+            
             closeModal("captionSizeModal");
         }
 
         // 자막 색상 설정 저장
         function saveCaptionColor() {
             const captionColor = document.querySelector('input[name="captionColor"]:checked').value;
-            console.log(`size: ${captionColor}`)
+
+            // Unity로 메시지 전송
+            var jsonData = {
+                flag: "textColor",
+                color: captionColor
+            };
+            Unity.call(JSON.stringify(jsonData));
+
             // 백엔드로 자막 색상 설정 저장 요청을 보낼 수 있습니다.
             closeModal("captionColorModal");
         }

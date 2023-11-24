@@ -13,6 +13,8 @@ import jwt
 from functools import wraps
 from werkzeug.utils import secure_filename
 
+from video_mode import process_video_frame
+
 app = Flask(__name__)
 app.secret_key ="Over_the_Glass"
 app.config['JWT_SECRET_KEY'] = 'Over_the_Glass'
@@ -23,9 +25,8 @@ app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png'}
 socketio = SocketIO(app)
 
 # 각자 데이터베이스에 맞춰서 변경 
-db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
 # db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
-# db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
+db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
 
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
@@ -432,7 +433,7 @@ def process_speech():
             db.commit()
             
             return jsonify({'message': '대화기록이 저장되었습니다.'}), 200
-              
+
     except Exception as e:
         # 오류 발생 시 롤백
         print(f'대화기록 저장 중 오류 발생: {e}')
@@ -442,8 +443,8 @@ def process_speech():
     
     return jsonify(".")
 
-@app.route('/camera', methods=['POST'])
-def camera():
+@app.route('/conversationmode', methods=['POST'])
+def conversationmode():
     if request.method == 'POST':
         # 요청에서 카메라 프레임 데이터를 가져옵니다.
         frame_data = np.frombuffer(request.data, dtype=np.uint8)
@@ -463,6 +464,29 @@ def camera():
             }
         )
 
+        # 응답으로는 프레임 데이터가 아닌 성공 상태를 반환합니다.
+        return 'Success'
+    else:
+        # 다른 메서드의 경우 오류 응답을 반환합니다.
+        return '허용되지 않는 메서드입니다.', 405
+
+@app.route('/videomode', methods=['POST'])
+def videomode():
+    if request.method == 'POST':
+        # 요청에서 카메라 프레임 데이터를 가져옵니다.
+        frame_data = np.frombuffer(request.data, dtype=np.uint8)
+
+        # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
+        print('Received camera frame:', len(frame_data), 'bytes')
+        name, latest_speaker_position = process_video_frame(frame_data)
+        socketio.emit(
+            'send_data',
+            {
+                'speaker': name,
+                'positionX': latest_speaker_position[0],
+                'positionY': latest_speaker_position[1]
+            }
+        )
         # 응답으로는 프레임 데이터가 아닌 성공 상태를 반환합니다.
         return 'Success'
     else:
