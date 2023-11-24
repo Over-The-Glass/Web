@@ -424,23 +424,25 @@ def process_speech():
     client_speech = data['speech']
     speaker_name = data['speakerName']
     room_code = data['room_code']
+    print("/process_speech line 387", client_speech, speaker_name, room_code)
 
-    #print("/process_speech line 387", client_speech, speaker_name, room_code)
-    try:
-        with db.cursor() as cursor:
-            query = "INSERT INTO chatroom_text(chatroom_fkey, speaker, text) values (%s, %s, %s)"
-            cursor.execute(query, (room_code, speaker_name, client_speech))
-            db.commit()
-            
-            return jsonify({'message': '대화기록이 저장되었습니다.'}), 200
+    if client_speech:
+        try:
+            with db.cursor() as cursor:
+                query = "INSERT INTO chatroom_text(chatroom_fkey, speaker, text) values (%s, %s, %s)"
+                cursor.execute(query, (room_code, speaker_name, client_speech))
+                db.commit()
+                cursor.close()
+                
+                return jsonify({'message': '대화기록이 저장되었습니다.'}), 200
 
-    except Exception as e:
-        # 오류 발생 시 롤백
-        print(f'대화기록 저장 중 오류 발생: {e}')
-        db.rollback()
-        return jsonify({'Error': '대화기록 실패'}), 500
+        except Exception as e:
+            # 오류 발생 시 롤백
+            print(f'대화기록 저장 중 오류 발생: {e}', )
+            db.rollback()
+            return jsonify({'Error': '대화기록 실패'}), 500
 
-    
+        
     return jsonify(".")
 
 @app.route('/conversationmode', methods=['POST'])
@@ -514,6 +516,7 @@ def on_join(data):
     print("on_join line 435", username, room_id, user_pkey)
     # 자막 사용자가 대화방 생성 시
     if room_id == -1:
+        print(f"대화방 생성 {username} {room_id} {user_pkey}")
         room_id = generateRoomID()
         rooms[room_id] = set()
         #print("username", username) 
