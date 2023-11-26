@@ -12,8 +12,8 @@ from datetime import datetime, timedelta
 import jwt
 from functools import wraps
 from werkzeug.utils import secure_filename
-
 from video_mode import process_video_frame
+import pymysqlpool
 
 app = Flask(__name__)
 app.secret_key ="Over_the_Glass"
@@ -27,6 +27,21 @@ socketio = SocketIO(app)
 # 각자 데이터베이스에 맞춰서 변경 
 # db = pymysql.connect(host='localhost', user='root', password='0717', db='overtheglass')
 db = pymysql.connect(host='localhost', user='root', password='0000', db='overtheglass')
+
+# 데이터베이스 연결 풀 생성
+db_config = {
+    "host": "localhost",
+    "user": "root",
+    "password": "0000",
+    "database": "overtheglass",
+}
+
+# 커넥션 풀 생성
+connection_pool = pymysqlpool.ConnectionPool(size=5, name="mypool", **db_config)
+
+def get_db_connection():
+    return connection_pool.get_connection()
+
 
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
@@ -371,7 +386,7 @@ def logout():
 @app.route('/record', methods=['GET'])
 def record():
     user_pkey = request.args.get('user')
-    #print("2. app.py /record record 함수 user_pkey=", user_pkey)
+    print("2. app.py /record record 함수 user_pkey=", user_pkey)
     with db.cursor() as cursor:
         query = "SELECT chatroom_pkey, created_at FROM chatroom WHERE user_fkey = %s" 
         cursor.execute(query, (user_pkey,))
@@ -428,21 +443,21 @@ def process_speech():
 
     if client_speech:
         try:
-            with db.cursor() as cursor:
+            connection = get_db_connection()
+            with connection.cursor() as cursor:
                 query = "INSERT INTO chatroom_text(chatroom_fkey, speaker, text) values (%s, %s, %s)"
                 cursor.execute(query, (room_code, speaker_name, client_speech))
-                db.commit()
-                cursor.close()
-                
+                connection.commit()                
                 return jsonify({'message': '대화기록이 저장되었습니다.'}), 200
-
         except Exception as e:
             # 오류 발생 시 롤백
-            print(f'대화기록 저장 중 오류 발생: {e}', )
-            db.rollback()
+            print(f'대화기록 저장 중 오류 발생: {e}')
+            connection.rollback()
             return jsonify({'Error': '대화기록 실패'}), 500
+        finally:
+            # 작업 완료 후 커넥션 반환
+            connection.close()
 
-        
     return jsonify(".")
 
 @app.route('/conversationmode', methods=['POST'])
@@ -543,7 +558,6 @@ def on_join(data):
                     
                     # 커밋
                     db.commit()
-                    
                     print("chatroom_pkey:", chatroom_pkey)
                     # chatroom_pkey 값을 클라이언트에게 보냄
                     emit('chatroom_pkey', {'chatroom_pkey': chatroom_pkey}, room=room_id)
