@@ -42,7 +42,6 @@ connection_pool = pymysqlpool.ConnectionPool(size=5, name="mypool", **db_config)
 def get_db_connection():
     return connection_pool.get_connection()
 
-
 m = hashlib.sha256()
 m.update('Over the Glass'.encode('utf-8'))
 
@@ -326,7 +325,6 @@ def signup_process():
         print(f'회원가입 중 오류 발생: {e}')
         db.rollback()
         return jsonify({'error': 'sign-up failed'}), 500
-        
 
 @app.route('/chatroom')
 @login_required
@@ -381,7 +379,6 @@ def logout():
     response = make_response(redirect(url_for('main')))  # 로그인 페이지로 리다이렉트
     response.delete_cookie('token')  # 토큰을 쿠키에서 제거
     return response
-
 
 @app.route('/record', methods=['GET'])
 def record():
@@ -496,6 +493,7 @@ def videomode():
         # 프레임 데이터를 처리하기 전에 로그 문장을 추가합니다.
         print('Received camera frame:', len(frame_data), 'bytes')
         name, latest_speaker_position = process_video_frame(frame_data)
+        print("!", name, latest_speaker_position)
         socketio.emit(
             'send_data',
             {
@@ -624,7 +622,6 @@ def upload(payload):
         image.save(image_path)
         return jsonify({'message':'Image save successful 이미지 폴더 저장 성공'})
     # 이미지 mysql에 저장 코드 추가 예정
-
 
 @app.route('/auth/kakao/callback')
 def kakao_login():

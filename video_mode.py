@@ -29,20 +29,32 @@ facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.
 known_faces = []
 known_names = []
 
-number_of_known_people = len(known_names)
 movements = [LipMovement(known_names[i]) for i in range(len(known_names))]
 latest_speaker_position = []
 difference = [0 for _ in range(len(known_names))]
 name = "Unknown"
+
+def initialize_variables():
+    global known_faces, known_names, movements, latest_speaker_position, difference
+    known_faces = []
+    known_names = ["person1"]
+    movements = []
+    latest_speaker_position = []
+    difference = []
+
+def updateDifference():
+    global difference
+    difference.append(0)
+
+# 변수 초기화
+initialize_variables()
 
 def process_video_frame(data):
     global name
     global latest_speaker_position
 
     image = cv2.imdecode(data, cv2.IMREAD_COLOR)
-
     frame = cv2.flip(image, 0)
-
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     faces = detector(gray)
@@ -57,6 +69,13 @@ def process_video_frame(data):
 
         face_encoding = np.array(facerec.compute_face_descriptor(frame, landmarks))
 
+        if not known_faces:
+            known_faces.append(face_encoding)
+            movements.append(LipMovement("person1"))
+            updateDifference()
+            print("found new face", known_names[0])
+            return known_names[0], [0, 0]
+
         face_distances = []
         for known_face in known_faces:
             face_distances.append(np.linalg.norm(known_face - face_encoding))
@@ -66,7 +85,7 @@ def process_video_frame(data):
         name = known_names[min_distance_index]
         match_rate = 1 / (1 + min_distance)
 
-        if match_rate > 0.5:
+        if match_rate > 7:
             landmarks_array = np.array([[p.x, p.y] for p in landmarks.parts()])
             lip_height = np.linalg.norm(landmarks_array[62] - landmarks_array[66])
             lip_width = np.linalg.norm(landmarks_array[48] - landmarks_array[54])
@@ -89,12 +108,13 @@ def process_video_frame(data):
         else:  # 매치율이 0.5보다 작을 경우 새로운 얼굴 정보 등록
             new_name = 'person{}'.format(len(known_faces) + 1)
             known_names.append(new_name)
-            known_faces.append(face)
+            known_faces.append(face_encoding)
+            movements.append(LipMovement(new_name))
+            updateDifference()
             print("found new face", new_name)
 
     if not has_speaker:
-        if not faces:  # 얼굴이 감지되지 않을 경우
-            name = "Unknown"
+        name = "Unknown"
     
     print("end processing")
 
