@@ -1,6 +1,8 @@
 ## OVER THE GLASS
 OVER THE GLASS란 다자간 대화 또는 영상 시청 시 AR글래스와 얼굴인식을 활용하여 발화자 주변에 실시간으로 자막을 표시해주는 난청인을 위한 자막 서비스이다.
 
+<img src="mockup.png" style="width: 500px;"/>
+
 <div>
   <h3>💻 Stacks</h3>
   <div style="display: flex; flex-wrap: wrap;">
